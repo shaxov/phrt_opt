@@ -1,6 +1,7 @@
 import typing
-import typedef
 import numpy as np
+
+from phrt_opt import typedef
 
 
 def _check_callable(obj):

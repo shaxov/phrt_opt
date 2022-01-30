@@ -1,6 +1,6 @@
 import typing
-import typedef
 import numpy as np
+from phrt_opt import typedef
 from phrt_opt.loop import loop
 
 
