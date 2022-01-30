@@ -1,7 +1,7 @@
 import typing
 import typedef
 import numpy as np
-from loop import loop
+from phrt_opt.loop import loop
 
 
 def alternating_projections(tm, b, *,
