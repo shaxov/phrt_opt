@@ -25,3 +25,14 @@ def phare_admm(m, n):
     ops_cnt += m * c_ops_costs.sub                                                                  # reg = Ax - u_exp_tht
     ops_cnt += m * 2 * (r_ops_costs.prod + r_ops_costs.add)                                         # lmd = lmd + rho * reg
     return ops_cnt
+
+
+def dual_ascent(m, n):
+    ops_cnt = m * c_ops_costs.vdot(n)                        # Ax = A*x = [a1Tx, ..., amTx]
+    ops_cnt += m * c_ops_costs.add                           # g = Ax + res
+    ops_cnt += m * c_ops_costs.angle                         # tht = angle(g)
+    ops_cnt += m * (c_ops_costs.exp + 2 * r_ops_costs.prod)  # b_exp_tht = b * exp(1j * tht)
+    ops_cnt += n * c_ops_costs.vdot(m)                       # x = A_pinv*b_exp_tht
+    ops_cnt += m * c_ops_costs.sub                           # reg = Ax - u_exp_tht
+    ops_cnt += m * c_ops_costs.add                           # res = res + reg
+    return ops_cnt
