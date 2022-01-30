@@ -48,3 +48,14 @@ class TestMethods(unittest.TestCase):
         )
         dist = phrt_opt.metrics.quality_norm(x, x_bar)
         self.assertAlmostEqual(dist, 2.00178195e-05)
+
+    def test_relaxed_dual_ascent(self):
+        x = self.x
+        x_bar = phrt_opt.methods.relaxed_dual_ascent(
+            self.tm, self.b,
+            tol=1e-6,
+            max_iter=100,
+            seed=self.seed,
+        )
+        dist = phrt_opt.metrics.quality_norm(x, x_bar)
+        self.assertAlmostEqual(dist, 2.384173644e-06)
