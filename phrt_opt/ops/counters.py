@@ -47,3 +47,6 @@ def relaxed_dual_ascent(m, n):
     ops_cnt += m * (2 * c_ops_costs.sub + c_ops_costs.add)                        # reg = Ax - b_exp_tht - eps
     ops_cnt += m * c_ops_costs.add                                                # res = res + reg
     return ops_cnt
+
+
+accelerated_relaxed_dual_ascent = relaxed_dual_ascent
