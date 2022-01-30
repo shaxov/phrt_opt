@@ -32,3 +32,20 @@ class TestMethods(unittest.TestCase):
         )
         dist = phrt_opt.metrics.quality_norm(x, x_bar)
         self.assertAlmostEqual(dist, 0.)
+
+    def test_phare_admm_ops_count_decorator(self):
+        from phrt_opt.decorators import ops_count
+        from phrt_opt.ops.counters import phare_admm
+
+        x = self.x
+        n = self.num_beams
+        m = self.num_measurements
+        x_bar, info = phrt_opt.methods.phare_admm(
+            self.tm, self.b,
+            tol=1e-6,
+            max_iter=100,
+            seed=self.seed,
+            decorators=[ops_count(phare_admm(m, n))],
+        )
+        dist = phrt_opt.metrics.quality_norm(x, x_bar)
+        self.assertAlmostEqual(dist, 0.)
