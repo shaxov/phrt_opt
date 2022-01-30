@@ -1,4 +1,4 @@
-import metrics
+from phrt_opt import metrics
 
 DEFAULT_TOL = 1e-8
 DEFAULT_MAX_ITER = 1000
