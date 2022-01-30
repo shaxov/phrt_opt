@@ -26,3 +26,14 @@ class TestMethods(unittest.TestCase):
         )
         dist = phrt_opt.metrics.quality_norm(x, x_bar)
         self.assertAlmostEqual(dist, 1.427048815e-05)
+
+    def test_phare_admm(self):
+        x = self.x
+        x_bar = phrt_opt.methods.phare_admm(
+            self.tm, self.b,
+            tol=1e-6,
+            max_iter=100,
+            seed=self.seed,
+        )
+        dist = phrt_opt.metrics.quality_norm(x, x_bar)
+        self.assertAlmostEqual(dist, 1.07006611e-05)
