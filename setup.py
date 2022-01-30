@@ -12,8 +12,7 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://gitlab.xlim.fr/shpakovych/phrt-opt",
-    packages=setuptools.find_packages("phrt_opt"),
-    package_dir={'': 'phrt_opt'},
+    packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
