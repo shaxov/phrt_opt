@@ -45,6 +45,7 @@ def loop(
         callbacks: typing.List[callable] = None,
         decorators: typing.List[callable] = None,
         seed: int = None,
+        **kwargs,
 ):
     _check_callable(update)
     _check_x0(x0)
@@ -74,7 +75,7 @@ def loop(
         ]
 
     for _ in range(max_iter):
-        x_n = update(x)
+        x_n = update(x, **kwargs)
         if decorators:
             x_n, dinfo = x_n
             info[typedef.DECORATOR_INFO_KEY].append(dinfo)
@@ -85,5 +86,9 @@ def loop(
             break
         x = x_n
     if info:
-        return {'x': x, 'info': info}
+        if callbacks:
+            info[typedef.CALLBACK_INFO_KEY] = np.array(info[typedef.CALLBACK_INFO_KEY])
+        if decorators:
+            info[typedef.DECORATOR_INFO_KEY] = np.array(info[typedef.DECORATOR_INFO_KEY])
+        return x, info
     return x
