@@ -14,7 +14,7 @@ def _check_x0(x0):
         if x0 <= 0:
             raise ValueError("If 'x0' is integer, then it must be positive.")
     elif isinstance(x0, np.ndarray):
-        if np.shape(x0) != 2:
+        if len(np.shape(x0)) != 2:
             raise ValueError("If 'x0' is numpy array, then it must be with shape (n, 1), where n > 1.")
         if np.shape(x0)[1] != 1:
             raise ValueError("If 'x0' is numpy array, then the last dimension must be equal to 1.")
