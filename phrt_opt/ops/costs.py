@@ -40,7 +40,7 @@ class RealFLOPS(_AttrDict):
     def __init__(self, config):
         super().__init__(**config)
 
-    def vdot(self, dim):
+    def dot(self, dim):
         return self.prod * dim + self.add * (dim - 1)
 
 
@@ -65,7 +65,7 @@ class ComplexFLOPS:
     def abs(self):
         return 2 * self._real_flops.prod + self._real_flops.add + self._real_flops.sqrt
 
-    def vdot(self, dim):
+    def dot(self, dim):
         return 4 * self._real_flops.prod * dim + 2 * self._real_flops.add * (2 * dim - 1)
 
     @property
