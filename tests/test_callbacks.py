@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 
 
-class TestMethods(unittest.TestCase):
+class TestCallbacks(unittest.TestCase):
 
     def setUp(self):
         m, n = 20, 5
