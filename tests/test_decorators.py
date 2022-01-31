@@ -83,3 +83,20 @@ class TestDecorators(unittest.TestCase):
         )
         dist = phrt_opt.metrics.quality_norm(x, x_bar)
         self.assertAlmostEqual(dist, 0.)
+
+    def test_wirtinger_ops_count_decorator(self):
+        from phrt_opt import decorators
+        from phrt_opt.ops import counters
+        from phrt_opt import initializers
+
+        b = self.b
+        tm = self.tm
+        n = self.num_beams
+        m = self.num_measurements
+
+        initializer = initializers.wirtinger
+        decorator = decorators.ops_count(counters.wirtinger(m, n))
+        initializer = decorator(initializer)
+        x0, dinfo = initializer(tm, b)
+        self.assertAlmostEqual(dinfo[0], 1.60256852e-05)
+
