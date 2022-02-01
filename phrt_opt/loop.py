@@ -66,9 +66,11 @@ def loop(
 
     info = {}
     if decorators:
-        info[typedef.DECORATOR_INFO_KEY] = []
         for decorator in decorators:
             update = decorator(update)
+        decorators = list(filter(lambda f: f.__name__ not in kwargs, decorators))
+    if decorators:
+        info[typedef.DECORATOR_INFO_KEY] = []
     if callbacks:
         info[typedef.CALLBACK_INFO_KEY] = [
             [callback(x) for callback in callbacks]
@@ -82,9 +84,11 @@ def loop(
         if callbacks:
             info[typedef.CALLBACK_INFO_KEY].append(
                 [callback(x_n) for callback in callbacks])
-        if metric(x_n, x) < tol and not (callbacks or decorators):
-            break
+        success = metric(x_n, x) < tol and not callbacks
         x = x_n
+        if success:
+            break
+
     if info:
         if callbacks:
             info[typedef.CALLBACK_INFO_KEY] = np.array(info[typedef.CALLBACK_INFO_KEY])

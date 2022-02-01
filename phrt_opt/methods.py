@@ -13,16 +13,17 @@ def alternating_projections(tm, b, *,
                             callbacks: typing.List[callable] = None,
                             decorators: typing.List[callable] = None,
                             seed: int = None,
-                            tm_pinv: np.ndarray = None):
+                            tm_pinv: np.ndarray = None,
+                            **kwargs):
     if x0 is None:
         x0 = np.shape(tm)[1]
     if tm_pinv is None:
         tm_pinv = np.linalg.pinv(tm)
 
-    def update(x):
+    def update(x, **kwargs):
         return tm_pinv.dot(b * np.exp(1j * np.angle(tm.dot(x))))
 
-    return loop(update, x0, tol, max_iter, metric, callbacks, decorators, seed)
+    return loop(update, x0, tol, max_iter, metric, callbacks, decorators, seed, **kwargs)
 
 
 def phare_admm(tm, b, *,
@@ -34,7 +35,8 @@ def phare_admm(tm, b, *,
                decorators: typing.List[callable] = None,
                seed: int = None,
                tm_pinv: np.ndarray = None,
-               rho: float = .5):
+               rho: float = .5,
+               **kwargs):
     if x0 is None:
         x0 = np.shape(tm)[1]
     if tm_pinv is None:
@@ -42,7 +44,7 @@ def phare_admm(tm, b, *,
     m = np.shape(tm)[0]
     lmd = np.zeros(shape=(m, 1)) + 1j * np.zeros(shape=(m, 1))
 
-    def update(x):
+    def update(x, **kwargs):
         nonlocal lmd
         tm_x = tm.dot(x)
         g = tm_x + lmd / rho
@@ -55,7 +57,7 @@ def phare_admm(tm, b, *,
         lmd = lmd + rho * reg
         return x
 
-    return loop(update, x0, tol, max_iter, metric, callbacks, decorators, seed)
+    return loop(update, x0, tol, max_iter, metric, callbacks, decorators, seed, **kwargs)
 
 
 def dual_ascent(tm, b, *,
@@ -66,7 +68,8 @@ def dual_ascent(tm, b, *,
                 callbacks: typing.List[callable] = None,
                 decorators: typing.List[callable] = None,
                 seed: int = None,
-                tm_pinv: np.ndarray = None):
+                tm_pinv: np.ndarray = None,
+                **kwargs):
     if x0 is None:
         x0 = np.shape(tm)[1]
     if tm_pinv is None:
@@ -74,7 +77,7 @@ def dual_ascent(tm, b, *,
     m = np.shape(tm)[0]
     lmd = np.zeros(shape=(m, 1)) + 1j * np.zeros(shape=(m, 1))
 
-    def update(x):
+    def update(x, **kwargs):
         nonlocal lmd
         tm_x = tm.dot(x)
         b_exp_tht = b * np.exp(1j * np.angle(tm_x + lmd))
@@ -82,7 +85,7 @@ def dual_ascent(tm, b, *,
         lmd = lmd + tm.dot(x) - b_exp_tht
         return x
 
-    return loop(update, x0, tol, max_iter, metric, callbacks, decorators, seed)
+    return loop(update, x0, tol, max_iter, metric, callbacks, decorators, seed, **kwargs)
 
 
 def relaxed_dual_ascent(tm, b, *,
@@ -94,7 +97,8 @@ def relaxed_dual_ascent(tm, b, *,
                         decorators: typing.List[callable] = None,
                         seed: int = None,
                         tm_pinv: np.ndarray = None,
-                        rho: float = .5):
+                        rho: float = .5,
+                        **kwargs):
     if x0 is None:
         x0 = np.shape(tm)[1]
     if tm_pinv is None:
@@ -103,7 +107,7 @@ def relaxed_dual_ascent(tm, b, *,
     lmd = np.zeros(shape=(m, 1)) + 1j * np.zeros(shape=(m, 1))
     eps = np.zeros(shape=(m, 1)) + 1j * np.zeros(shape=(m, 1))
 
-    def update(x):
+    def update(x, **kwargs):
         nonlocal lmd, eps
         tm_x = tm.dot(x)
         z = b * np.exp(1j * np.angle(tm_x - eps + lmd))
@@ -113,7 +117,7 @@ def relaxed_dual_ascent(tm, b, *,
         lmd = lmd + y - z - eps
         return x
 
-    return loop(update, x0, tol, max_iter, metric, callbacks, decorators, seed)
+    return loop(update, x0, tol, max_iter, metric, callbacks, decorators, seed, **kwargs)
 
 
 def accelerated_relaxed_dual_ascent(tm, b, *,
@@ -128,7 +132,8 @@ def accelerated_relaxed_dual_ascent(tm, b, *,
                                     rho: float = .5,
                                     restart_freq: int = 3,
                                     restart_rate: float = 0.15,
-                                    lmd_tol: float = 1e-2):
+                                    lmd_tol: float = 1e-2,
+                                    **kwargs):
     it = 1
     if x0 is None:
         x0 = np.shape(tm)[1]
@@ -138,7 +143,7 @@ def accelerated_relaxed_dual_ascent(tm, b, *,
     lmd = np.zeros(shape=(m, 1)) + 1j * np.zeros(shape=(m, 1))
     eps = np.zeros(shape=(m, 1)) + 1j * np.zeros(shape=(m, 1))
 
-    def update(x):
+    def update(x, **kwargs):
         nonlocal lmd, eps, it
         tm_x = tm.dot(x)
         lmd_dist = metrics.quality(tm_x - eps + lmd, tm_x)
@@ -152,4 +157,4 @@ def accelerated_relaxed_dual_ascent(tm, b, *,
                 lmd *= restart_rate
         it += 1
         return x
-    return loop(update, x0, tol, max_iter, metric, callbacks, decorators, seed)
+    return loop(update, x0, tol, max_iter, metric, callbacks, decorators, seed, **kwargs)

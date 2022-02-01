@@ -31,7 +31,7 @@ class TestDecorators(unittest.TestCase):
             decorators=[ops_count(alternating_projections(m, n))],
         )
         dist = phrt_opt.metrics.quality_norm(x, x_bar)
-        self.assertAlmostEqual(dist, 0.)
+        self.assertAlmostEqual(dist, 8.42524891297991e-06)
 
     def test_phare_admm_ops_count_decorator(self):
         from phrt_opt.decorators import ops_count
@@ -48,7 +48,7 @@ class TestDecorators(unittest.TestCase):
             decorators=[ops_count(phare_admm(m, n))],
         )
         dist = phrt_opt.metrics.quality_norm(x, x_bar)
-        self.assertAlmostEqual(dist, 0.)
+        self.assertAlmostEqual(dist, 1.2015331742665225e-05)
 
     def test_dual_ascent_ops_count_decorator(self):
         from phrt_opt.decorators import ops_count
@@ -65,7 +65,7 @@ class TestDecorators(unittest.TestCase):
             decorators=[ops_count(dual_ascent(m, n))],
         )
         dist = phrt_opt.metrics.quality_norm(x, x_bar)
-        self.assertAlmostEqual(dist, 0.)
+        self.assertAlmostEqual(dist, 2.4150490046559447e-05)
 
     def test_relaxed_dual_ascent_ops_count_decorator(self):
         from phrt_opt.decorators import ops_count
@@ -82,7 +82,7 @@ class TestDecorators(unittest.TestCase):
             decorators=[ops_count(relaxed_dual_ascent(m, n))],
         )
         dist = phrt_opt.metrics.quality_norm(x, x_bar)
-        self.assertAlmostEqual(dist, 0.)
+        self.assertAlmostEqual(dist, 3.2475099216444647e-06)
 
     def test_wirtinger_ops_count_decorator(self):
         from phrt_opt import decorators

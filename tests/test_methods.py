@@ -25,7 +25,7 @@ class TestMethods(unittest.TestCase):
             seed=self.seed,
         )
         dist = phrt_opt.metrics.quality_norm(x, x_bar)
-        self.assertAlmostEqual(dist, 1.427048815e-05)
+        self.assertAlmostEqual(dist, 8.42524891297991e-06)
 
     def test_phare_admm(self):
         x = self.x
@@ -36,7 +36,7 @@ class TestMethods(unittest.TestCase):
             seed=self.seed,
         )
         dist = phrt_opt.metrics.quality_norm(x, x_bar)
-        self.assertAlmostEqual(dist, 1.07006611e-05)
+        self.assertAlmostEqual(dist, 1.2015331742665225e-05)
 
     def test_dual_ascent(self):
         x = self.x
@@ -47,7 +47,7 @@ class TestMethods(unittest.TestCase):
             seed=self.seed,
         )
         dist = phrt_opt.metrics.quality_norm(x, x_bar)
-        self.assertAlmostEqual(dist, 2.00178195e-05)
+        self.assertAlmostEqual(dist, 2.4150490046559447e-05)
 
     def test_relaxed_dual_ascent(self):
         x = self.x
@@ -58,7 +58,7 @@ class TestMethods(unittest.TestCase):
             seed=self.seed,
         )
         dist = phrt_opt.metrics.quality_norm(x, x_bar)
-        self.assertAlmostEqual(dist, 2.384173644e-06)
+        self.assertAlmostEqual(dist, 3.2475099216444647e-06)
 
     def test_accelerated_relaxed_dual_ascent(self):
         x = self.x
@@ -69,4 +69,4 @@ class TestMethods(unittest.TestCase):
             seed=self.seed,
         )
         dist = phrt_opt.metrics.quality_norm(x, x_bar)
-        self.assertAlmostEqual(dist, 0.000300221)
+        self.assertAlmostEqual(dist, 0.0002727315687515164)
