@@ -16,7 +16,7 @@ class TestCallbacks(unittest.TestCase):
         self.tm = random.randn(m, n) + 1j * random.randn(m, n)
         self.b = np.abs(self.tm.dot(self.x))
 
-    def test_alternating_projections_ops_count_decorator(self):
+    def test_convergence_and_metric_callbacks(self):
         from phrt_opt.callbacks import MetricCallback
         from phrt_opt.callbacks import ConvergenceCallback
         from phrt_opt.metrics import quality_norm
