@@ -62,6 +62,7 @@ def relaxed_dual_ascent(m, n):
 
 
 accelerated_relaxed_dual_ascent = relaxed_dual_ascent
+garda = relaxed_dual_ascent
 
 
 def eig(n):

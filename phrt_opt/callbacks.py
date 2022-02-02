@@ -25,3 +25,14 @@ class MetricCallback:
 
     def __call__(self, x):
         return self.metric(x, self.x_opt)
+
+
+class IsSolvedCallback:
+
+    def __init__(self, x_opt: np.array, metric: callable, tol: float):
+        self.x_opt = x_opt
+        self.metric = metric
+        self.tol = tol
+
+    def __call__(self, x):
+        return self.metric(x, self.x_opt) < self.tol

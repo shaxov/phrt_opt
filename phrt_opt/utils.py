@@ -27,3 +27,17 @@ def power_method(mat, tol=1e-3, **kwargs):
         if success:
             break
     return lmd, v[:, np.newaxis]
+
+
+def define_gradient(tm, b):
+    m, n = np.shape(tm)
+    tm_h = np.transpose(np.conj(tm))
+
+    def gradient(x):
+        tm_x = np.dot(tm, x)
+        r = np.abs(tm_x) ** 2 - b ** 2
+        r_tm_x = np.multiply(r, tm_x)
+        grad = np.dot(tm_h, r_tm_x) / m
+        return grad
+
+    return gradient
