@@ -38,13 +38,12 @@ def _check_max_iter(max_iter):
 
 def loop(
         update: callable,
-        x0: typing.Union[np.array, int],
+        x0: np.array,
         tol: float = typedef.DEFAULT_TOL,
         max_iter: int = typedef.DEFAULT_MAX_ITER,
         metric: callable = typedef.DEFAULT_METRIC,
         callbacks: typing.List[callable] = None,
         decorators: typing.List[callable] = None,
-        seed: int = None,
         **kwargs,
 ):
     _check_callable(update)
@@ -59,11 +58,7 @@ def loop(
         for decorator in decorators:
             _check_callable(decorator)
 
-    random = np.random.RandomState(seed)
-    if isinstance(x0, int):
-        x0 = random.randn(x0, 1) + 1j * random.randn(x0, 1)
     x = x0
-
     info = {}
     if decorators:
         for decorator in decorators:

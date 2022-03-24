@@ -85,3 +85,14 @@ def wirtinger(m, n):
     ops_cnt += m * (c_norm_vec(n) + r_ops_costs.prod)
     ops_cnt += 2 * (m - 1) * r_ops_costs.add + r_ops_costs.div + r_ops_costs.prod + r_ops_costs.sqrt
     return ops_cnt
+
+
+def get(name):
+    return {
+        "alternating_projections": alternating_projections,
+        "dual_ascent": dual_ascent,
+        "relaxed_dual_ascent": relaxed_dual_ascent,
+        "accelerated_relaxed_dual_ascent": accelerated_relaxed_dual_ascent,
+        "phare_admm": phare_admm,
+        "garda": garda,
+    }[name]

@@ -41,3 +41,9 @@ def define_gradient(tm, b):
         return grad
 
     return gradient
+
+def random_x0(dim, random_state=None):
+    if random_state is None:
+        random_state = np.random.RandomState()
+    x0 = random_state.randn(dim, 1) + 1j * random_state.randn(dim, 1)
+    return x0

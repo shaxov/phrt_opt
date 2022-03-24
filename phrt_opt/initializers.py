@@ -3,10 +3,10 @@ from phrt_opt import utils
 
 
 def random(tm, b, **kwargs):
-    seed = kwargs.get('seed', None)
-    m, n = np.shape(tm)
-    random = np.random.RandomState(seed)
-    x0 = random.normal(size=(n, 1)) + 1j * random.normal(size=(n, 1))
+    random_state = kwargs.get('random_state', None)
+    if random_state is None:
+        random_state = np.random.RandomState()
+    x0 = utils.random_x0(np.shape(tm)[1], random_state)
     return x0
 
 
@@ -22,3 +22,10 @@ def wirtinger(tm, b, tol=1e-3, **kwargs):
     lmd = np.sqrt(n * np.sum(b) / np.sum(lmd))
     x0 = lmd * v
     return x0
+
+
+def get(name):
+    return {
+        "random": random,
+        "wirtinger": wirtinger,
+    }[name]

@@ -40,3 +40,11 @@ def projection(x, y, axis=0):
     if d.size == 1:
         d = np.squeeze(d)[()]
     return d
+
+
+def get(name):
+    return {
+        "quality": quality,
+        "quality_norm": quality_norm,
+        "projection": projection,
+    }[name]
