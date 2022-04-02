@@ -32,11 +32,20 @@ def quality_norm(x, y, axis=0):
 
 
 def projection(x, y, axis=0):
-    d = np.sum(np.conj(x) * y, axis=axis)
+    d = np.sum(np.conj(x) * y, axis=axis, keepdims=True)
     d = np.angle(d)
     d = x - np.exp(-1j * d) * y
     d = np.linalg.norm(d, axis=axis)
 
+    if d.size == 1:
+        d = np.squeeze(d)[()]
+    return d
+
+
+def dist_to_normal_cone(y, z, rho=1., axis=0, keepdims=False):
+    alpha = np.real(np.conj(y) * z) / np.abs(z)**2 - 1
+    alpha[alpha < -rho] = rho
+    d = np.linalg.norm(y - z - alpha * z, axis=axis, keepdims=keepdims)
     if d.size == 1:
         d = np.squeeze(d)[()]
     return d
