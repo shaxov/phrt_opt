@@ -42,6 +42,10 @@ def projection(x, y, axis=0):
     return d
 
 
+def projection_norm(x, y):
+    return projection(x, y) / np.max([np.linalg.norm(x), np.linalg.norm(x)])
+
+
 def dist_to_normal_cone(y, z, rho=1., axis=0, keepdims=False):
     alpha = np.real(np.conj(y) * z) / np.abs(z)**2 - 1
     alpha[alpha < -rho] = rho
@@ -56,4 +60,6 @@ def get(name):
         "quality": quality,
         "quality_norm": quality_norm,
         "projection": projection,
+        "projection_norm": projection_norm,
+        "dist_to_normal_cone": dist_to_normal_cone,
     }[name]
