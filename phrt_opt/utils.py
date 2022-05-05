@@ -29,6 +29,20 @@ def power_method(mat, tol=1e-3, **kwargs):
     return lmd, v[:, np.newaxis]
 
 
+def define_objective(tm, b):
+    m, n = np.shape(tm)
+
+    def fun(x):
+        tm_x = np.dot(tm, x)
+        y = np.power(np.abs(tm_x), 2)
+        y -= np.power(b, 2)
+        y = np.power(y, 2)
+        y = np.sum(y, axis=0) / (2 * m)
+        return np.real(y)
+    fun.tm_shape = (m, n)
+    return fun
+
+
 def define_gradient(tm, b):
     m, n = np.shape(tm)
     tm_h = np.transpose(np.conj(tm))

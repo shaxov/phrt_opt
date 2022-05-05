@@ -27,13 +27,13 @@ def alternating_projections(m, n):
 
 
 def phare_admm(m, n):
-    ops_cnt = c_mat_vec_dot(m, n)                                                               # Ax = A*x = [a1Tx, ..., amTx]
+    ops_cnt = c_mat_vec_dot(m, n)                                                                   # Ax = A*x = [a1Tx, ..., amTx]
     ops_cnt += 2 * m * r_ops_costs.div + m * c_ops_costs.add                                        # g = Ax - lmd / rho
     ops_cnt += m * c_ops_costs.angle                                                                # tht = angle(g)
     ops_cnt += m * (c_ops_costs.abs + 2 * r_ops_costs.prod + r_ops_costs.add + r_ops_costs.div)     # u = (rho * abs(g) + b) / (rho + 1)
     ops_cnt += m * (c_ops_costs.exp + 2 * r_ops_costs.prod)                                         # u_exp_tht = u * exp(1j * tht)
     ops_cnt += m * c_ops_costs.sub                                                                  # y = u_exp_tht - lmd / rho
-    ops_cnt += c_mat_vec_dot(n, m)                                                              # x = A_pinv*y
+    ops_cnt += c_mat_vec_dot(n, m)                                                                  # x = A_pinv*y
     ops_cnt += m * c_ops_costs.sub                                                                  # reg = Ax - u_exp_tht
     ops_cnt += m * 2 * (r_ops_costs.prod + r_ops_costs.add)                                         # lmd = lmd + rho * reg
     return ops_cnt
@@ -59,6 +59,33 @@ def relaxed_dual_ascent(m, n):
     ops_cnt += m * (2 * c_ops_costs.sub + c_ops_costs.add)                        # reg = Ax - b_exp_tht - eps
     ops_cnt += m * c_ops_costs.add                                                # res = res + reg
     return ops_cnt
+
+
+def gauss_newton(m, n):
+    flops = m * c_ops_costs.dot(n)
+    flops += m * c_ops_costs.abs
+    flops += m * r_ops_costs.prod
+    flops += m * (r_ops_costs.prod + r_ops_costs.sub)
+    flops += m * (2 * r_ops_costs.prod)
+    flops += m * n * c_ops_costs.prod
+    flops += m * n * 6 * r_ops_costs.prod
+    flops += 2 * n * c_ops_costs.dot(m)
+    flops += 2 * n * c_ops_costs.dot(m) * 2 * n
+    flops += n * 2 * r_ops_costs.prod
+    flops += (4 / 3) * (2 * n)**3 * r_ops_costs.add
+    flops += (2 * n) * (2 * n - 1) * (c_ops_costs.sub + c_ops_costs.prod)
+    return flops
+
+
+def gradient_descent(m, n):
+    # gk = gradient(x)
+    flops = m * c_ops_costs.dot(n)
+    flops += m * (c_ops_costs.abs + 2 * r_ops_costs.prod * r_ops_costs.sub)
+    flops += m * (2 * r_ops_costs.prod)
+    flops += n * (c_ops_costs.dot(m) + 2 * r_ops_costs.div)
+    # x += -alpha * gk
+    flops += n * 2 * r_ops_costs.prod
+    return flops
 
 
 accelerated_relaxed_dual_ascent = relaxed_dual_ascent
@@ -95,4 +122,6 @@ def get(name):
         "accelerated_relaxed_dual_ascent": accelerated_relaxed_dual_ascent,
         "phare_admm": phare_admm,
         "garda": garda,
+        "gauss_newton": gauss_newton,
+        "gradient_descent": gradient_descent,
     }[name]

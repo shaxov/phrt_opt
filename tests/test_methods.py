@@ -29,6 +29,18 @@ class TestMethods(unittest.TestCase):
         dist = phrt_opt.metrics.quality_norm(x, x_bar)
         self.assertAlmostEqual(dist, 0.00024642286613196784)
 
+    def test_gauss_newton(self):
+        x, x0 = self.x, self.x0
+        x_bar = phrt_opt.methods.gauss_newton(
+            self.tm, self.b,
+            x0=x0,
+            tol=1e-6,
+            max_iter=100,
+            seed=self.seed,
+        )
+        dist = phrt_opt.metrics.quality_norm(x, x_bar)
+        self.assertAlmostEqual(dist, 3.881517329773487e-09)
+
     def test_phare_admm(self):
         x, x0 = self.x, self.x0
         x_bar = phrt_opt.methods.phare_admm(

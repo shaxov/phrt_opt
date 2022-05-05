@@ -27,6 +27,75 @@ def alternating_projections(tm, b, *,
     return loop(update, x0, tol, max_iter, metric, callbacks, decorators, **kwargs)
 
 
+def gradient_descent(tm, b, *,
+                     x0: np.array = None,
+                     tol: float = typedef.DEFAULT_TOL,
+                     max_iter: int = typedef.DEFAULT_MAX_ITER,
+                     metric: callable = typedef.DEFAULT_METRIC,
+                     callbacks: typing.List[callable] = None,
+                     decorators: typing.List[callable] = None,
+                     random_state: np.random.RandomState = None,
+                     linesearch_method: callable = typedef.DEFAULT_LINESEARCH_METHOD,
+                     **kwargs):
+    try:
+        linesearch_method = linesearch_method()
+    except:
+        pass
+    dim = np.shape(tm)[1]
+    fun = phrt_opt.utils.define_objective(tm, b)
+    gradient = phrt_opt.utils.define_gradient(tm, b)
+    if x0 is None:
+        x0 = phrt_opt.utils.random_x0(np.shape(tm)[1], random_state)
+
+    def update(x, **kwargs):
+        g = gradient(x)
+        return x - linesearch_method(fun, x, g) * g
+
+    return loop(update, x0, tol, max_iter, metric, callbacks, decorators, **kwargs)
+
+
+def gauss_newton(tm, b, *,
+                 x0: np.array = None,
+                 tol: float = typedef.DEFAULT_TOL,
+                 max_iter: int = typedef.DEFAULT_MAX_ITER,
+                 metric: callable = typedef.DEFAULT_METRIC,
+                 callbacks: typing.List[callable] = None,
+                 decorators: typing.List[callable] = None,
+                 random_state: np.random.RandomState = None,
+                 quadprog_solver: callable = typedef.DEFAULT_QUADPROG_SOLVER,
+                 linesearch_method: callable = typedef.DEFAULT_LINESEARCH_METHOD,
+                 **kwargs):
+    try:
+        linesearch_method = linesearch_method()
+    except:
+        pass
+
+    dim = np.shape(tm)[1]
+    fun = phrt_opt.utils.define_objective(tm, b)
+    if x0 is None:
+        x0 = phrt_opt.utils.random_x0(dim, random_state)
+
+    def update(x, **kwargs):
+        tm_x = np.dot(tm, x)
+        r = np.power(np.abs(tm_x), 2) - np.power(b, 2)
+
+        jac = tm * np.conj(tm_x)
+        jac = np.concatenate([jac, np.conj(jac)], axis=1)
+        jac_h = np.conj(jac.T)
+
+        gk = np.dot(jac_h, r)
+        hk = np.dot(jac_h, jac)
+        pk = quadprog_solver(hk, -gk)
+        pk = pk
+        pk = pk[:dim]
+
+        ak = linesearch_method(fun, x, -pk)
+        x = x + ak * pk
+        return x
+
+    return loop(update, x0, tol, max_iter, metric, callbacks, decorators, **kwargs)
+
+
 def phare_admm(tm, b, *,
                x0: np.array = None,
                tol: float = typedef.DEFAULT_TOL,
@@ -215,4 +284,6 @@ def get(name):
         "accelerated_relaxed_dual_ascent": accelerated_relaxed_dual_ascent,
         "phare_admm": phare_admm,
         "garda": garda,
+        "gauss_newton": gauss_newton,
+        "gradient_descent": gradient_descent,
     }[name]
