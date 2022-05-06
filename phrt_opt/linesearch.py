@@ -22,6 +22,10 @@ class backtracking:
         self.alpha0 = alpha0
         self.it = 0
 
+    @property
+    def name(self):
+        return "backtracking"
+
     def __call__(self, fun, x, grad):
         f_x = fun(x)
         alpha = self.alpha0
@@ -45,6 +49,10 @@ class secant:
     def __init__(self, backtracking_):
         self.backtracking_ = backtracking_
         self.prev_x, self.prev_p = None, None
+
+    @property
+    def name(self):
+        return "secant"
 
     def __call__(self, fun, x, p):
         if self.prev_x is None or self.prev_p is None:
