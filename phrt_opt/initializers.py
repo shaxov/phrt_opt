@@ -12,7 +12,7 @@ def random(tm, b, random_state=None):
     return x0
 
 
-def wirtinger(tm, b, tol=typedef.DEFAULT_POWER_METHOD_TOLERANCE):
+def wirtinger(tm, b, tol=typedef.DEFAULT_POWER_METHOD_TOL):
     """ Starting point computation via Wirtinger flow [1].
 
     Reference:
