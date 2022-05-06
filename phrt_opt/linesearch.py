@@ -24,11 +24,7 @@ def backtracking(
     return alpha
 
 
-class Linesearch(metaclass=abc.ABCMeta):
-    pass
-
-
-class secant(Linesearch):
+class secant:
     """ Secant equation based line search [1].
 
     Reference:
