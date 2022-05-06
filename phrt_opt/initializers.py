@@ -12,6 +12,13 @@ def random(tm, b, **kwargs):
 
 
 def wirtinger(tm, b, tol=typedef.DEFAULT_POWER_METHOD_TOLERANCE):
+    """
+    Starting point computation via Wirtinger flow [1].
+
+    Reference:
+        [1] Candes, Emmanuel & Soltanolkotabi, Mahdi. (2014). Phase Retrieval via Wirtinger Flow: Theory and Algorithms.
+         IEEE Transactions on Information Theory. 61. 10.1109/TIT.2015.2399924.
+    """
     m, n = np.shape(tm)
     b2 = np.square(b[..., np.newaxis])
     mat = tm[..., np.newaxis].conj() * tm[:, np.newaxis]
