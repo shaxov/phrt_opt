@@ -1,6 +1,6 @@
-import typedef
 import numpy as np
 from phrt_opt import utils
+from phrt_opt import typedef
 
 
 def random(tm, b, random_state=None):
