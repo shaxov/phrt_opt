@@ -1,12 +1,12 @@
 import typing
-import inspect
 import numpy as np
 import phrt_opt.utils
 from phrt_opt import typedef
 from phrt_opt.loop import loop
-from phrt_opt.linesearch import Linesearch
+from phrt_opt import linesearch as ls
 
 
+@ls.make_instance_if_class
 def gradient_descent(tm, b, *,
                      x0: np.array = None,
                      tol: float = typedef.DEFAULT_TOL,
@@ -14,10 +14,7 @@ def gradient_descent(tm, b, *,
                      metric: callable = typedef.DEFAULT_METRIC,
                      callbacks: typing.List[callable] = None,
                      random_state: np.random.RandomState = None,
-                     linesearch: typing.Union[callable, Linesearch] = typedef.DEFAULT_LINESEARCH):
-    if inspect.isclass(linesearch):
-        linesearch = linesearch()
-
+                     linesearch: callable = typedef.DEFAULT_LINESEARCH):
     dim = np.shape(tm)[1]
     fun = phrt_opt.utils.define_objective(tm, b)
     gradient = phrt_opt.utils.define_gradient(tm, b)
@@ -31,6 +28,7 @@ def gradient_descent(tm, b, *,
     return loop(update, x0, tol, max_iter, metric, callbacks)
 
 
+@ls.make_instance_if_class
 def gauss_newton(tm, b, *,
                  x0: np.array = None,
                  tol: float = typedef.DEFAULT_TOL,
@@ -39,10 +37,7 @@ def gauss_newton(tm, b, *,
                  callbacks: typing.List[callable] = None,
                  random_state: np.random.RandomState = None,
                  quadprog_solver: callable = typedef.DEFAULT_QUADPROG_SOLVER,
-                 linesearch: typing.Union[callable, Linesearch] = typedef.DEFAULT_LINESEARCH):
-    if inspect.isclass(linesearch):
-        linesearch = linesearch()
-
+                 linesearch: callable = typedef.DEFAULT_LINESEARCH):
     dim = np.shape(tm)[1]
     fun = phrt_opt.utils.define_objective(tm, b)
     if x0 is None:

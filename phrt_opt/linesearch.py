@@ -1,4 +1,4 @@
-import abc
+import inspect
 import numpy as np
 from phrt_opt import typedef
 
@@ -73,3 +73,12 @@ class secant_symmetric(secant):
         ck = np.real(np.vdot(sk, yk))
         if ck > 0: return ck / (np.vdot(yk, yk) + np.finfo(float).eps)
         return backtracking(fun, x, gk, c1, rate, max_iter, alpha0)
+
+
+def make_instance_if_class(method):
+    def _wrap(*args, **kwargs):
+        _linesearch = kwargs.get('linesearch')
+        if inspect.isclass(_linesearch):
+            kwargs["linesearch"] = _linesearch()
+        return method(*args, **kwargs)
+    return _wrap
