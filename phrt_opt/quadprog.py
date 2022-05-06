@@ -1,8 +1,14 @@
 import numpy as np
+from phrt_opt import typedef
 from scipy.linalg import solve_triangular
 
 
-def conjugate_gradient_solver(mat, b, x0=None, tol=1e-8, max_iter=None, dlt=1e-8):
+def conjugate_gradient_solver(
+        mat, b,
+        x0=None,
+        tol=typedef.DEFAULT_CG_TOL,
+        max_iter=typedef.DEFAULT_CG_MAX_ITER,
+        dlt=typedef.DEFAULT_REG_DLT):
     m, n = np.shape(mat)
     if m != n:
         raise ValueError("Matrix is not square.")
@@ -29,7 +35,7 @@ def conjugate_gradient_solver(mat, b, x0=None, tol=1e-8, max_iter=None, dlt=1e-8
     return xk
 
 
-def cholesky_solver(mat, b, dlt=1e-8):
+def cholesky_solver(mat, b, dlt=typedef.DEFAULT_REG_DLT):
     m, n = np.shape(mat)
     if m != n:
         raise ValueError("Matrix is not square.")
