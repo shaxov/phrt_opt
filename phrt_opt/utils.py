@@ -1,12 +1,9 @@
 import numpy as np
 from phrt_opt import typedef
-from phrt_opt.ops import counters
 
 
-def power_method(mat, tol=1e-3, **kwargs):
+def power_method(mat, tol=typedef.DEFAULT_POWER_METHOD_TOL):
     n = np.shape(mat)[1]
-    sub_ops = kwargs.get(typedef.DECORATOR_OPS_COUNT_NAME, [0])
-    sub_ops[0] += counters.eig(n)
 
     def eig(mat_, v_):
         mat_v_ = mat_.dot(v_)
@@ -17,8 +14,6 @@ def power_method(mat, tol=1e-3, **kwargs):
     v = np.ones(n) / np.sqrt(n)
     lmd = eig(mat, v)
     while True:
-        sub_ops[0] += counters.power_method_step(n)
-
         mat_v = mat.dot(v)
         v = mat_v / np.linalg.norm(mat_v)
         lmd_n = eig(mat, v)
