@@ -74,4 +74,3 @@ class secant_symmetric(secant):
         ck = np.real(np.vdot(sk, yk))
         if ck > 0: return ck / (np.vdot(yk, yk) + np.finfo(float).eps)
         return self.backtracking_(fun, x, p)
-
