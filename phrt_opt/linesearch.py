@@ -1,27 +1,37 @@
-import inspect
 import numpy as np
 from phrt_opt import typedef
+from numpy.linalg import norm
 
 
-def backtracking(
-        fun, x, gk,
-        c1=typedef.DEFAULT_BACKTRACKING_C1,
-        rate=typedef.DEFAULT_BACKTRACKING_RATE,
-        max_iter=typedef.DEFAULT_BACKTRACKING_MAX_ITER,
-        alpha0=typedef.DEFAULT_BACKTRACKING_ALPHA0):
+class backtracking:
     """ Armijo backtracking line search [1, p.33, (3.4)].
 
     Reference:
         [1] Jorge Nocedal, Stephen J. Wright, Numerical Optimization, 2nd edition.
     """
-    fun_x = fun(x)
-    alpha = alpha0
-    gk_norm2 = np.linalg.norm(gk)**2
-    for _ in range(max_iter):
-        h = fun(x - alpha * gk) + alpha * c1 * gk_norm2
-        if fun_x > h: break
-        alpha *= rate
-    return alpha
+
+    def __init__(
+            self,
+            c1=typedef.DEFAULT_BACKTRACKING_C1,
+            rate=typedef.DEFAULT_BACKTRACKING_RATE,
+            max_iter=typedef.DEFAULT_BACKTRACKING_MAX_ITER,
+            alpha0=typedef.DEFAULT_BACKTRACKING_ALPHA0):
+        self.c1 = c1
+        self.rate = rate
+        self.max_iter = max_iter
+        self.alpha0 = alpha0
+        self.it = 0
+
+    def __call__(self, fun, x, grad):
+        f_x = fun(x)
+        alpha = self.alpha0
+        g_norm2 = norm(grad)**2
+        for _ in range(self.max_iter):
+            h = fun(x - alpha * grad) + alpha * self.c1 * g_norm2
+            if f_x > h: break
+            alpha *= self.rate
+            self.it += 1
+        return alpha
 
 
 class secant:
@@ -32,23 +42,19 @@ class secant:
             IMA Journal of Numerical Analysis, Volume 8, Issue 1, January 1988, Pages 141–148,
     """
 
-    def __init__(self):
-        self.prev_x, self.prev_gk = None, None
+    def __init__(self, backtracking_):
+        self.backtracking_ = backtracking_
+        self.prev_x, self.prev_p = None, None
 
-    def __call__(self,
-                 fun, x, gk,
-                 c1=typedef.DEFAULT_BACKTRACKING_C1,
-                 rate=typedef.DEFAULT_BACKTRACKING_RATE,
-                 max_iter=typedef.DEFAULT_BACKTRACKING_MAX_ITER,
-                 alpha0=typedef.DEFAULT_BACKTRACKING_ALPHA0):
-        if self.prev_x is None or self.prev_gk is None:
-            self.prev_x, self.prev_gk = x, gk
-            return backtracking(fun, x, gk, c1, rate, max_iter, alpha0)
-        sk, yk = x - self.prev_x, gk - self.prev_gk
-        self.prev_x, self.prev_gk = x, gk
+    def __call__(self, fun, x, p):
+        if self.prev_x is None or self.prev_p is None:
+            self.prev_x, self.prev_p = x, p
+            return self.backtracking_(fun, x, p)
+        sk, yk = x - self.prev_x, p - self.prev_p
+        self.prev_x, self.prev_p = x, p
         ck = np.real(np.vdot(sk, yk))
         if ck > 0: return np.vdot(sk, sk) / ck
-        return backtracking(fun, x, gk, c1, rate, max_iter, alpha0)
+        return self.backtracking_(fun, x, p)
 
 
 class secant_symmetric(secant):
@@ -59,26 +65,13 @@ class secant_symmetric(secant):
             IMA Journal of Numerical Analysis, Volume 8, Issue 1, January 1988, Pages 141–148,
     """
 
-    def __call__(self,
-                 fun, x, gk,
-                 c1=typedef.DEFAULT_BACKTRACKING_C1,
-                 rate=typedef.DEFAULT_BACKTRACKING_RATE,
-                 max_iter=typedef.DEFAULT_BACKTRACKING_MAX_ITER,
-                 alpha0=typedef.DEFAULT_BACKTRACKING_ALPHA0):
-        if self.prev_x is None or self.prev_gk is None:
-            self.prev_x, self.prev_gk = x, gk
-            return backtracking(fun, x, gk, c1, rate, max_iter, alpha0)
-        sk, yk = x - self.prev_x, gk - self.prev_gk
-        self.prev_x, self.prev_gk = x, gk
+    def __call__(self, fun, x, p):
+        if self.prev_x is None or self.prev_p is None:
+            self.prev_x, self.prev_p = x, p
+            return self.backtracking_(fun, x, p)
+        sk, yk = x - self.prev_x, p - self.prev_p
+        self.prev_x, self.prev_p = x, p
         ck = np.real(np.vdot(sk, yk))
         if ck > 0: return ck / (np.vdot(yk, yk) + np.finfo(float).eps)
-        return backtracking(fun, x, gk, c1, rate, max_iter, alpha0)
+        return self.backtracking_(fun, x, p)
 
-
-def make_instance_if_class(method):
-    def _wrap(*args, **kwargs):
-        _linesearch = kwargs.get('linesearch')
-        if inspect.isclass(_linesearch):
-            kwargs["linesearch"] = _linesearch()
-        return method(*args, **kwargs)
-    return _wrap
