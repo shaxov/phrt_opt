@@ -49,4 +49,3 @@ class TestMethods(unittest.TestCase):
         )
         dist = phrt_opt.metrics.quality_norm(x, x_bar)
         self.assertAlmostEqual(dist, 2.2636871992776086e-05)
-
