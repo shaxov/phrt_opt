@@ -43,7 +43,6 @@ def loop(
         max_iter: int = typedef.DEFAULT_MAX_ITER,
         metric: callable = typedef.DEFAULT_METRIC,
         callbacks: typing.List[callable] = None,
-        **kwargs,
 ):
     _check_callable(update)
     _check_x0(x0)
@@ -60,7 +59,7 @@ def loop(
         info = [[callback(x) for callback in callbacks]]
 
     for _ in range(max_iter):
-        x_n = update(x, **kwargs)
+        x_n = update(x)
         if callbacks:
             info.append([callback(x_n) for callback in callbacks])
         success = metric(x_n, x) < tol and not callbacks
