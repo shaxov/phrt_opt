@@ -3,17 +3,17 @@ import numpy as np
 from phrt_opt import utils
 
 
-def random(tm, b, **kwargs):
-    random_state = kwargs.get('random_state', None)
+def random(tm, b, random_state=None):
+    """ Random starting point generation. """
     if random_state is None:
         random_state = np.random.RandomState()
-    x0 = utils.random_x0(np.shape(tm)[1], random_state)
+    dim = np.shape(tm)[1]
+    x0 = utils.random_x0(dim, random_state)
     return x0
 
 
 def wirtinger(tm, b, tol=typedef.DEFAULT_POWER_METHOD_TOLERANCE):
-    """
-    Starting point computation via Wirtinger flow [1].
+    """ Starting point computation via Wirtinger flow [1].
 
     Reference:
         [1] Candes, Emmanuel & Soltanolkotabi, Mahdi. (2014). Phase Retrieval via Wirtinger Flow: Theory and Algorithms.
