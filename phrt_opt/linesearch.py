@@ -1,3 +1,4 @@
+import abc
 import numpy as np
 from phrt_opt import typedef
 
@@ -23,7 +24,11 @@ def backtracking(
     return alpha
 
 
-class secant:
+class Linesearch(metaclass=abc.ABCMeta):
+    pass
+
+
+class secant(Linesearch):
     """ Secant equation based line search [1].
 
     Reference:
