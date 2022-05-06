@@ -88,6 +88,21 @@ def gradient_descent(m, n):
     return flops
 
 
+def backtracking_step(m, n):
+    flops = 1
+    return flops
+
+
+def backtracking_init(m, n):
+    flops = 1
+    return flops
+
+
+def secant(m, n):
+    flops = 1
+    return flops
+
+
 accelerated_relaxed_dual_ascent = relaxed_dual_ascent
 garda = relaxed_dual_ascent
 
