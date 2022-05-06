@@ -17,6 +17,10 @@ class ConjugateGradientSolver:
         self.dlt = dlt
         self.it = 0
 
+    @property
+    def name(self):
+        return "conjugate_gradient"
+
     def __call__(self, mat, b):
         m, n = np.shape(mat)
         if m != n:
@@ -49,6 +53,11 @@ class CholeskySolver:
 
     def __init__(self, dlt=typedef.DEFAULT_REG_DLT):
         self.dlt = dlt
+        self.it = 1
+
+    @property
+    def name(self):
+        return "cholesky"
 
     def __call__(self, mat, b):
         m, n = np.shape(mat)
