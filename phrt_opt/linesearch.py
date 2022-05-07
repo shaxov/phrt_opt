@@ -3,7 +3,7 @@ from phrt_opt import typedef
 from numpy.linalg import norm
 
 
-class backtracking:
+class Backtracking:
     """ Armijo backtracking line search [1, p.33, (3.4)].
 
     Reference:
@@ -38,7 +38,7 @@ class backtracking:
         return alpha
 
 
-class secant:
+class Secant:
     """ Secant equation based line search [1].
 
     Reference:
@@ -65,7 +65,7 @@ class secant:
         return self.backtracking_(fun, x, p)
 
 
-class secant_symmetric(secant):
+class SecantSymmetric(Secant):
     """ Secant equation based line search (symmetric variant) [1].
 
     Reference:
