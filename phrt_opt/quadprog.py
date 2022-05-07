@@ -3,7 +3,7 @@ from phrt_opt import typedef
 from scipy.linalg import solve_triangular
 
 
-class ConjugateGradientSolver:
+class ConjugateGradient:
 
     def __init__(
             self,
@@ -49,7 +49,7 @@ class ConjugateGradientSolver:
         return xk
 
 
-class CholeskySolver:
+class Cholesky:
 
     def __init__(self, dlt=typedef.DEFAULT_REG_DLT):
         self.dlt = dlt
