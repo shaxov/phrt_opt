@@ -3,10 +3,8 @@ import numpy as np
 import phrt_opt.utils
 from phrt_opt import typedef
 from phrt_opt.loop import loop
-from phrt_opt import linesearch as ls
 
 
-@ls.make_instance_if_class
 def gradient_descent(tm, b, *,
                      x0: np.array = None,
                      tol: float = typedef.DEFAULT_TOL,
@@ -14,8 +12,10 @@ def gradient_descent(tm, b, *,
                      metric: callable = typedef.DEFAULT_METRIC,
                      callbacks: typing.List[callable] = None,
                      random_state: np.random.RandomState = None,
-                     linesearch: callable = typedef.DEFAULT_LINESEARCH):
+                     linesearch: callable = typedef.DEFAULT_LINESEARCH,
+                     linesearch_params: dict = typedef.DEFAULT_LINESEARCH_PARAMS):
     dim = np.shape(tm)[1]
+    linesearch = linesearch(**linesearch_params)
     fun = phrt_opt.utils.define_objective(tm, b)
     gradient = phrt_opt.utils.define_gradient(tm, b)
     if x0 is None:
@@ -28,7 +28,6 @@ def gradient_descent(tm, b, *,
     return loop(update, x0, tol, max_iter, metric, callbacks)
 
 
-@ls.make_instance_if_class
 def gauss_newton(tm, b, *,
                  x0: np.array = None,
                  tol: float = typedef.DEFAULT_TOL,
@@ -36,27 +35,22 @@ def gauss_newton(tm, b, *,
                  metric: callable = typedef.DEFAULT_METRIC,
                  callbacks: typing.List[callable] = None,
                  random_state: np.random.RandomState = None,
-                 quadprog_solver: callable = typedef.DEFAULT_QUADPROG_SOLVER,
-                 linesearch: callable = typedef.DEFAULT_LINESEARCH):
+                 quadprog: callable = typedef.DEFAULT_QUADPROG,
+                 quadprog_params: dict = typedef.DEFAULT_QUADPROG_PARAMS,
+                 linesearch: callable = typedef.DEFAULT_LINESEARCH,
+                 linesearch_params: dict = typedef.DEFAULT_LINESEARCH_PARAMS):
     dim = np.shape(tm)[1]
+    quadprog = quadprog(**quadprog_params)
+    linesearch = linesearch(**linesearch_params)
     fun = phrt_opt.utils.define_objective(tm, b)
+    gauss_newton_system = phrt_opt.utils.define_gauss_newton_system(tm, b)
     if x0 is None:
         x0 = phrt_opt.utils.random_x0(dim, random_state)
 
     def update(x):
-        tm_x = np.dot(tm, x)
-        r = np.power(np.abs(tm_x), 2) - np.power(b, 2)
-
-        jac = tm * np.conj(tm_x)
-        jac = np.concatenate([jac, np.conj(jac)], axis=1)
-        jac_h = np.conj(jac.T)
-
-        gk = np.dot(jac_h, r)
-        hk = np.dot(jac_h, jac)
-
-        pk = quadprog_solver(hk, -gk)[:dim]
+        hk, gk = gauss_newton_system(x)
+        pk = quadprog(hk, -gk)[:dim]
         ak = linesearch(fun, x, -pk)
-
         return x + ak * pk
 
     return loop(update, x0, tol, max_iter, metric, callbacks)
