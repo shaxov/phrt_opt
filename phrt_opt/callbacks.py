@@ -1,6 +1,14 @@
+import abc
 import numpy as np
-from phrt_opt import linesearch
+import phrt_opt.utils
+from phrt_opt import typedef
 from phrt_opt.ops import counters
+
+from phrt_opt.linesearch import Backtracking
+
+from phrt_opt.quadprog import Cholesky
+from phrt_opt.quadprog import ConjugateGradient
+
 
 
 class IsConvergedCallback:
@@ -40,45 +48,166 @@ class MetricCallback:
         return self.metric(x, self.x_opt)
 
 
-class OpsBacktrackingCallback:
+class OpsCallback(metaclass=abc.ABCMeta):
 
-    def __init__(self, fun: callable, gradient: callable = None, **params):
-        self.fun = fun
-        self.tm_shape = fun.tm_shape
-        self.gradient = gradient
-        self.params = params
+    def __init__(self, tm, b, preliminary_step: callable = None):
+        self.tm, self.b = tm, b
+        self.preliminary_step = preliminary_step
+        self.shape = np.shape(tm)
 
-    def __call__(self, x, **kwargs):
-        bls = linesearch.backtracking(**self.params)
-        p = kwargs.get('p', self.gradient(x))
-        _ = bls(self.fun, x, p)
-        return counters.backtracking_init(*self.tm_shape) + \
-               bls.it * counters.backtracking_step(*self.tm_shape)
+        self.result = None
+
+    @abc.abstractmethod
+    def __call__(self, x):
+        pass
 
 
-class OpsSecantCallback:
+class OpsLinesearchCallback(OpsCallback):
 
-    def __init__(self, fun: callable, gradient: callable = None, **bls_params):
-        self.fun = fun
-        self.tm_shape = fun.tm_shape
-        self.gradient = gradient
-        self.bls_params = bls_params
+    def __init__(self, tm, b,
+                 linesearch_params: dict,
+                 preliminary_step: callable = None):
+        super().__init__(tm, b, preliminary_step)
+        self.fun = phrt_opt.utils.define_objective(tm, b)
+        self.gradient = phrt_opt.utils.define_gradient(tm, b)
+        self.linesearch_params = linesearch_params
+
+
+class OpsQuadprogCallback(OpsCallback):
+
+    def __init__(self, tm, b,
+                 quadprog_params: dict,
+                 preliminary_step: callable = None):
+        super().__init__(tm, b, preliminary_step)
+        self.quadprog_params = quadprog_params
+
+
+class OpsBacktrackingCallback(OpsLinesearchCallback):
+
+    def __init__(self, tm, b,
+                 linesearch_params=typedef.DEFAULT_BACKTRACKING_PARAMS,
+                 preliminary_step: callable = None):
+        super().__init__(tm, b, linesearch_params, preliminary_step)
+
+    def __call__(self, x, p=None):
+        if p is None:
+            p = self.gradient(x)
+        args = self.fun, x, p
+        if self.preliminary_step is not None:
+            args = self.preliminary_step(x)
+
+        backtracking = Backtracking(**self.linesearch_params)
+        self.result = backtracking(*args)
+        return counters.backtracking_init(*self.shape) + \
+               backtracking.it * counters.backtracking_step(*self.shape)
+
+
+class OpsSecantCallback(OpsLinesearchCallback):
+
+    def __init__(self,
+                 ops_backtracking_callback: OpsBacktrackingCallback,
+                 linesearch_params=typedef.DEFAULT_LINESEARCH_PARAMS,
+                 preliminary_step: callable = None):
+        super().__init__(
+            ops_backtracking_callback.tm,
+            ops_backtracking_callback.b,
+            linesearch_params,
+            preliminary_step,
+        )
         self.prev_x, self.prev_p = None, None
+        self.ops_backtracking_callback = ops_backtracking_callback
 
-    def __call__(self, x, **kwargs):
-        p = kwargs.get('p', self.gradient(x))
-        bls = OpsBacktrackingCallback(self.fun, self.gradient, **self.bls_params)
+    def __call__(self, x, p=None):
+        args = (x,)
+        if self.preliminary_step is not None:
+            args = self.preliminary_step(x)
+
+        if p is None:
+            p = self.gradient(x)
+
         if self.prev_x is None or self.prev_p is None:
             self.prev_x, self.prev_p = x, p
-            return bls(x, **kwargs)
+            ops_count = self.ops_backtracking_callback(x)
+            self.result = self.ops_backtracking_callback.result
+            return ops_count
+
         sk, yk = x - self.prev_x, p - self.prev_p
         self.prev_x, self.prev_p = x, p
         ck = np.real(np.vdot(sk, yk))
-        if ck > 0: return counters.secant(*self.tm_shape)
-        return bls(x, **kwargs)
+        if ck > 0:
+            self.result =ck / (np.vdot(yk, yk) + np.finfo(float).eps) \
+                if self.linesearch_params.get('sym') \
+                else np.vdot(sk, sk) / (ck + + np.finfo(float).eps)
+            return counters.secant_init(*self.shape) + \
+                   counters.secant_step(*self.shape)
+
+        ops_count = self.ops_backtracking_callback(x)
+        self.result = self.ops_backtracking_callback.result
+        return counters.secant_init(*self.shape) + ops_count
 
 
-OpsSecantSymmetricCallback = OpsSecantCallback
+class OpsConjugateGradientCallback(OpsQuadprogCallback):
+
+    def __init__(self, tm, b,
+                 quadprog_params=typedef.DEFAULT_CG_PARAMS,
+                 preliminary_step: callable = None):
+        super().__init__(tm, b, quadprog_params, preliminary_step)
+
+    def __call__(self, x):
+        args = (x,)
+        if self.preliminary_step is not None:
+            args = self.preliminary_step(x)
+
+        conjugate_gradient = ConjugateGradient(**self.quadprog_params)
+        self.result = conjugate_gradient(*args)
+
+        return counters.conjugate_gradient_init(*self.shape) + \
+               conjugate_gradient.it * counters.conjugate_gradient_init(*self.shape)
+
+
+
+class OpsGradientDescentCallback:
+
+    def __init__(self, ops_linesearch_callback: OpsLinesearchCallback):
+        self.ops_linesearch_callback = ops_linesearch_callback
+
+    def __call__(self, x):
+        return counters.gradient_descent(*self.ops_linesearch_callback.shape) + \
+               self.ops_linesearch_callback(x)
+
+
+class OpsGaussNewtonCallback:
+
+    def __init__(self,
+                 ops_linesearch_callback: OpsLinesearchCallback,
+                 ops_quadprog_callback: OpsQuadprogCallback):
+        self.ops_linesearch_callback = ops_linesearch_callback
+        self.ops_quadprog_callback = ops_quadprog_callback
+
+    def __call__(self, x):
+        ops_gauss_newton = counters.gauss_newton(*self.ops_linesearch_callback.shape)
+        ops_quadprog_count = self.ops_quadprog_callback(x)
+        ops_linesearch_count = self.ops_linesearch_callback(
+            x, self.ops_quadprog_callback.result[:self.ops_linesearch_callback.shape[1]])
+        return ops_gauss_newton + ops_quadprog_count + ops_linesearch_count
+
+
+class OpsAlternatingProjectionsCallback:
+
+    def __init__(self, shape: tuple):
+        self.shape = shape
+
+    def __call__(self, x):
+        return counters.alternating_projections(*self.shape)
+
+
+class OpsADMMCallback:
+
+    def __init__(self, shape: tuple):
+        self.shape = shape
+
+    def __call__(self, x):
+        return counters.admm(*self.shape)
 
 
 class RhoStrategyCallback:
