@@ -17,6 +17,15 @@ def c_norm_vec(n):
     return n * c_ops_costs.prod + (n - 1) * c_ops_costs.add + r_ops_costs.sqrt
 
 
+def fun_eval(m, n):
+    flops = m * c_ops_costs.dot(n)
+    flops += m * (c_ops_costs.abs + r_ops_costs.prod)
+    flops += m * (r_ops_costs.prod + r_ops_costs.sub)
+    flops += m * r_ops_costs.prod
+    flops += (m - 1) * r_ops_costs.add + r_ops_costs.div * r_ops_costs.prod
+    return flops
+
+
 def alternating_projections(m, n):
     ops_cnt = c_mat_vec_dot(m, n)          # Ax = [a1Tx, ..., amTx]
     ops_cnt += m * c_ops_costs.angle           # phi = angle(Ax)
@@ -26,31 +35,7 @@ def alternating_projections(m, n):
     return ops_cnt
 
 
-def phare_admm(m, n):
-    ops_cnt = c_mat_vec_dot(m, n)                                                                   # Ax = A*x = [a1Tx, ..., amTx]
-    ops_cnt += 2 * m * r_ops_costs.div + m * c_ops_costs.add                                        # g = Ax - lmd / rho
-    ops_cnt += m * c_ops_costs.angle                                                                # tht = angle(g)
-    ops_cnt += m * (c_ops_costs.abs + 2 * r_ops_costs.prod + r_ops_costs.add + r_ops_costs.div)     # u = (rho * abs(g) + b) / (rho + 1)
-    ops_cnt += m * (c_ops_costs.exp + 2 * r_ops_costs.prod)                                         # u_exp_tht = u * exp(1j * tht)
-    ops_cnt += m * c_ops_costs.sub                                                                  # y = u_exp_tht - lmd / rho
-    ops_cnt += c_mat_vec_dot(n, m)                                                                  # x = A_pinv*y
-    ops_cnt += m * c_ops_costs.sub                                                                  # reg = Ax - u_exp_tht
-    ops_cnt += m * 2 * (r_ops_costs.prod + r_ops_costs.add)                                         # lmd = lmd + rho * reg
-    return ops_cnt
-
-
-def dual_ascent(m, n):
-    ops_cnt = c_mat_vec_dot(m, n)                        # Ax = A*x = [a1Tx, ..., amTx]
-    ops_cnt += m * c_ops_costs.add                           # g = Ax + res
-    ops_cnt += m * c_ops_costs.angle                         # tht = angle(g)
-    ops_cnt += m * (c_ops_costs.exp + 2 * r_ops_costs.prod)  # b_exp_tht = b * exp(1j * tht)
-    ops_cnt += c_mat_vec_dot(n, m)                       # x = A_pinv*b_exp_tht
-    ops_cnt += m * c_ops_costs.sub                           # reg = Ax - u_exp_tht
-    ops_cnt += m * c_ops_costs.add                           # res = res + reg
-    return ops_cnt
-
-
-def relaxed_dual_ascent(m, n):
+def admm(m, n):
     ops_cnt = c_mat_vec_dot(m, n)                                             # Ax = A*x = [a1Tx, ..., amTx]
     ops_cnt += m * (c_ops_costs.add + c_ops_costs.sub)                            # g = Ax - eps + lmd
     ops_cnt += m * c_ops_costs.angle                                              # tht = angle(g)
@@ -72,8 +57,6 @@ def gauss_newton(m, n):
     flops += 2 * n * c_ops_costs.dot(m)
     flops += 2 * n * c_ops_costs.dot(m) * 2 * n
     flops += n * 2 * r_ops_costs.prod
-    flops += (4 / 3) * (2 * n)**3 * r_ops_costs.add
-    flops += (2 * n) * (2 * n - 1) * (c_ops_costs.sub + c_ops_costs.prod)
     return flops
 
 
@@ -88,33 +71,64 @@ def gradient_descent(m, n):
     return flops
 
 
-def backtracking_step(m, n):
-    flops = 1
-    return flops
-
-
 def backtracking_init(m, n):
-    flops = 1
+    flops = c_ops_costs.dot(n) + r_ops_costs.sqrt + n * r_ops_costs.div
+    flops += r_ops_costs.prod
+    flops += fun_eval(m, n)
     return flops
 
 
-def secant(m, n):
-    flops = 1
+def backtracking_step(m, n):
+    flops = n * 2 * r_ops_costs.prod
+    flops += fun_eval(m, n) + 2 * r_ops_costs.prod
+    flops += r_ops_costs.prod
     return flops
 
 
-accelerated_relaxed_dual_ascent = relaxed_dual_ascent
-garda = relaxed_dual_ascent
+def secant_init(m, n):
+    flops = c_ops_costs.dot(n) + 2 * c_ops_costs.sub * n
+    return flops
 
 
-def eig(n):
-    return c_mat_vec_dot(n, n) + c_ops_costs.dot(n)
+def secant_step(m, n):
+    flops = c_ops_costs.dot(n)
+    return flops
+
+
+def conjugate_gradient_init(m, n):
+    flops = n * (c_ops_costs.dot(n) + c_ops_costs.sub)
+    flops += n * 2 * r_ops_costs.prod
+    return flops
+
+
+def conjugate_gradient_step(m, n):
+    flops = c_ops_costs.dot(n) + n * r_ops_costs.prod
+    flops += n * c_ops_costs.dot(n)
+    flops += 2 * n * (c_ops_costs.dot(n) + r_ops_costs.prod) + r_ops_costs.div
+    flops += 2 * n * 2 * r_ops_costs.prod + n * c_ops_costs.add
+    flops += 2 * n * (c_ops_costs.dot(n) + r_ops_costs.prod) + r_ops_costs.div
+    flops += n * 2 * r_ops_costs.prod + n * c_ops_costs.add + 2 * n * r_ops_costs.prod
+    return flops
+
+
+def cholesky_init(m, n):
+    return 0.
+
+
+def cholesky_step(m, n):
+    flops += (4 / 3) * (2 * n) ** 3 * r_ops_costs.add
+    flops += (2 * n) * (2 * n - 1) * (c_ops_costs.sub + c_ops_costs.prod)
+    return flops
+
+
+def power_method_init(n):
+    return 0.
 
 
 def power_method_step(n):
     ops_cnt = c_mat_vec_dot(n, n)
     ops_cnt += c_norm_vec(n) + 2 * n * r_ops_costs.div
-    ops_cnt += eig(n)
+    ops_cnt += c_mat_vec_dot(n, n) + c_ops_costs.dot(n)
     ops_cnt += r_ops_costs.sub
     return ops_cnt
 
@@ -131,12 +145,17 @@ def wirtinger(m, n):
 
 def get(name):
     return {
-        "alternating_projections": alternating_projections,
-        "dual_ascent": dual_ascent,
-        "relaxed_dual_ascent": relaxed_dual_ascent,
-        "accelerated_relaxed_dual_ascent": accelerated_relaxed_dual_ascent,
-        "phare_admm": phare_admm,
-        "garda": garda,
+        "admm": admm,
         "gauss_newton": gauss_newton,
         "gradient_descent": gradient_descent,
+        "alternating_projections": alternating_projections,
+
+        "secant": (secant_init, secant_step),
+        "cholesky": (cholesky_init, cholesky_step),
+        "backtracking": (backtracking_init, backtracking_step),
+        "conjugate_gradient": (conjugate_gradient_init, conjugate_gradient_step),
+
+        "power_method": (power_method_init, power_method_step),
+
+        "wirtinger": wirtinger,
     }[name]
