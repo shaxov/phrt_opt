@@ -52,6 +52,23 @@ def define_gradient(tm, b):
     return gradient
 
 
+def define_gauss_newton_system(tm, b):
+
+    def system(x):
+        tm_x = np.dot(tm, x)
+        r = np.power(np.abs(tm_x), 2) - np.power(b, 2)
+
+        jac = tm * np.conj(tm_x)
+        jac = np.concatenate([jac, np.conj(jac)], axis=1)
+        jac_h = np.conj(jac.T)
+
+        gk = np.dot(jac_h, r)
+        hk = np.dot(jac_h, jac)
+        return hk, gk
+
+    return system
+
+
 def random_x0(dim, random_state=None):
     if random_state is None:
         random_state = np.random.RandomState()
