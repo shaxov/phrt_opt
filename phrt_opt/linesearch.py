@@ -46,7 +46,7 @@ class Secant:
             IMA Journal of Numerical Analysis, Volume 8, Issue 1, January 1988, Pages 141–148,
     """
 
-    def __init__(self, backtracking_):
+    def __init__(self, backtracking_, sym=False):
         self.backtracking_ = backtracking_
         self.prev_x, self.prev_p = None, None
 
@@ -61,24 +61,7 @@ class Secant:
         sk, yk = x - self.prev_x, p - self.prev_p
         self.prev_x, self.prev_p = x, p
         ck = np.real(np.vdot(sk, yk))
-        if ck > 0: return np.vdot(sk, sk) / ck
-        return self.backtracking_(fun, x, p)
-
-
-class SecantSymmetric(Secant):
-    """ Secant equation based line search (symmetric variant) [1].
-
-    Reference:
-        [1] JONATHAN BARZILAI, JONATHAN M. BORWEIN, Two-Point Step Size Gradient Methods,
-            IMA Journal of Numerical Analysis, Volume 8, Issue 1, January 1988, Pages 141–148,
-    """
-
-    def __call__(self, fun, x, p):
-        if self.prev_x is None or self.prev_p is None:
-            self.prev_x, self.prev_p = x, p
-            return self.backtracking_(fun, x, p)
-        sk, yk = x - self.prev_x, p - self.prev_p
-        self.prev_x, self.prev_p = x, p
-        ck = np.real(np.vdot(sk, yk))
-        if ck > 0: return ck / (np.vdot(yk, yk) + np.finfo(float).eps)
+        if ck > 0:
+            return ck / (np.vdot(yk, yk) + np.finfo(float).eps) if sym \
+                else np.vdot(sk, sk) / (ck + + np.finfo(float).eps)
         return self.backtracking_(fun, x, p)
