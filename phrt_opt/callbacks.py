@@ -302,4 +302,6 @@ def get_ops(name):
         OpsCholeskyCallback.name(): OpsCholeskyCallback,
         OpsGradientDescentCallback.name(): OpsGradientDescentCallback,
         OpsGaussNewtonCallback.name(): OpsGaussNewtonCallback,
+        OpsAlternatingProjectionsCallback.name(): OpsAlternatingProjectionsCallback,
+        OpsADMMCallback.name(): OpsADMMCallback,
     }[name]
