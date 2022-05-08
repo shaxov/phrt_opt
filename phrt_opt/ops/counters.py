@@ -116,7 +116,7 @@ def cholesky_init(m, n):
 
 
 def cholesky_step(m, n):
-    flops += (4 / 3) * (2 * n) ** 3 * r_ops_costs.add
+    flops = (4 / 3) * (2 * n) ** 3 * r_ops_costs.add
     flops += (2 * n) * (2 * n - 1) * (c_ops_costs.sub + c_ops_costs.prod)
     return flops
 
