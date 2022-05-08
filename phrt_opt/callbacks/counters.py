@@ -3,80 +3,12 @@ import numpy as np
 import phrt_opt.utils
 from phrt_opt import typedef
 from phrt_opt.ops import counters
-
 from phrt_opt.linesearch import Backtracking
-
 from phrt_opt.quadprog import Cholesky
 from phrt_opt.quadprog import ConjugateGradient
 
 
-
-class IsConvergedCallback:
-
-    def __init__(self, metric: callable, tol: float):
-        self.metric = metric
-        self.tol = tol
-        self.x = None
-
-    def __call__(self, x) -> bool:
-        if self.x is None:
-            self.x = x
-            return False
-        success_ok = self.metric(x, self.x) < self.tol
-        self.x = x
-        return success_ok
-
-
-class IsSolvedCallback:
-
-    def __init__(self, x_opt: np.array, metric: callable, tol: float):
-        self.x_opt = x_opt
-        self.metric = metric
-        self.tol = tol
-
-    def __call__(self, x) -> bool:
-        return self.metric(x, self.x_opt) < self.tol
-
-
-class MetricCallback:
-
-    def __init__(self, x_opt: np.array, metric: callable):
-        self.x_opt = x_opt
-        self.metric = metric
-
-    def __call__(self, x) -> float:
-        return self.metric(x, self.x_opt)
-
-
-class RhoStrategyCallback:
-
-    def __init__(self, tm, tm_pinv, b, strategy):
-        m = np.shape(tm)[0]
-        self.lmd = np.zeros(shape=(m, 1)) + 1j * np.zeros(shape=(m, 1))
-        self.eps = np.zeros(shape=(m, 1)) + 1j * np.zeros(shape=(m, 1))
-        self.strategy = strategy
-
-        self.tm = tm
-        self.tm_pinv = tm_pinv
-        self.b = b
-        self.it = 0
-
-    def __call__(self, x):
-        tm_x = self.tm.dot(x)
-        z = self.b * np.exp(1j * np.angle(tm_x - self.eps + self.lmd))
-        x = self.tm_pinv.dot(z + self.eps - self.lmd)
-        y = self.tm.dot(x)
-
-        rho = self.strategy(self.it, y, z)
-
-        # self.eps = (rho / (1 + rho)) * (y - z + self.lmd)
-        # self.lmd = self.lmd + y - z - self.eps
-        self.it += 1
-        return rho
-
-
-
-class OpsCallback(metaclass=abc.ABCMeta):
+class _Callback(metaclass=abc.ABCMeta):
 
     def __init__(self, tm, b, preliminary_step: callable = None):
         self.tm, self.b = tm, b
@@ -95,7 +27,7 @@ class OpsCallback(metaclass=abc.ABCMeta):
         pass
 
 
-class OpsLinesearchCallback(OpsCallback):
+class _LinesearchCallback(_Callback):
 
     def __init__(self, tm, b,
                  linesearch_params: dict,
@@ -106,7 +38,7 @@ class OpsLinesearchCallback(OpsCallback):
         self.linesearch_params = linesearch_params
 
 
-class OpsQuadprogCallback(OpsCallback):
+class _QuadprogCallback(_Callback):
 
     def __init__(self, tm, b,
                  quadprog_params: dict,
@@ -115,7 +47,7 @@ class OpsQuadprogCallback(OpsCallback):
         self.quadprog_params = quadprog_params
 
 
-class OpsBacktrackingCallback(OpsLinesearchCallback):
+class BacktrackingCallback(_LinesearchCallback):
 
     def __init__(self, tm, b,
                  linesearch_params=typedef.DEFAULT_BACKTRACKING_PARAMS,
@@ -139,10 +71,10 @@ class OpsBacktrackingCallback(OpsLinesearchCallback):
                backtracking.it * counters.backtracking_step(*self.shape)
 
 
-class OpsSecantCallback(OpsLinesearchCallback):
+class SecantCallback(_LinesearchCallback):
 
     def __init__(self,
-                 ops_backtracking_callback: OpsBacktrackingCallback,
+                 ops_backtracking_callback: BacktrackingCallback,
                  linesearch_params=typedef.DEFAULT_LINESEARCH_PARAMS,
                  preliminary_step: callable = None):
         super().__init__(
@@ -187,7 +119,7 @@ class OpsSecantCallback(OpsLinesearchCallback):
         return counters.secant_init(*self.shape) + ops_count
 
 
-class OpsConjugateGradientCallback(OpsQuadprogCallback):
+class ConjugateGradientCallback(_QuadprogCallback):
 
     def __init__(self, tm, b,
                  quadprog_params=typedef.DEFAULT_CG_PARAMS,
@@ -210,7 +142,7 @@ class OpsConjugateGradientCallback(OpsQuadprogCallback):
                conjugate_gradient.it * counters.conjugate_gradient_init(*self.shape)
 
 
-class OpsCholeskyCallback(OpsQuadprogCallback):
+class CholeskyCallback(_QuadprogCallback):
 
     def __init__(self, tm, b,
                  quadprog_params=typedef.DEFAULT_CHOLESKY_PARAMS,
@@ -234,9 +166,9 @@ class OpsCholeskyCallback(OpsQuadprogCallback):
 
 
 
-class OpsGradientDescentCallback:
+class GradientDescentCallback:
 
-    def __init__(self, ops_linesearch_callback: OpsLinesearchCallback):
+    def __init__(self, ops_linesearch_callback: _LinesearchCallback):
         self.ops_linesearch_callback = ops_linesearch_callback
 
     @staticmethod
@@ -248,11 +180,11 @@ class OpsGradientDescentCallback:
                self.ops_linesearch_callback(x)
 
 
-class OpsGaussNewtonCallback:
+class GaussNewtonCallback:
 
     def __init__(self,
-                 ops_linesearch_callback: OpsLinesearchCallback,
-                 ops_quadprog_callback: OpsQuadprogCallback):
+                 ops_linesearch_callback: _LinesearchCallback,
+                 ops_quadprog_callback: _QuadprogCallback):
         self.ops_linesearch_callback = ops_linesearch_callback
         self.ops_quadprog_callback = ops_quadprog_callback
 
@@ -268,7 +200,7 @@ class OpsGaussNewtonCallback:
         return ops_gauss_newton + ops_quadprog_count + ops_linesearch_count
 
 
-class OpsAlternatingProjectionsCallback:
+class AlternatingProjectionsCallback:
 
     def __init__(self, shape: tuple):
         self.shape = shape
@@ -281,7 +213,7 @@ class OpsAlternatingProjectionsCallback:
         return counters.alternating_projections(*self.shape)
 
 
-class OpsADMMCallback:
+class ADMMCallback:
 
     def __init__(self, shape: tuple):
         self.shape = shape
@@ -294,14 +226,14 @@ class OpsADMMCallback:
         return counters.admm(*self.shape)
 
 
-def get_ops(name):
+def get(name):
     return {
-        OpsBacktrackingCallback.name(): OpsBacktrackingCallback,
-        OpsSecantCallback.name(): OpsSecantCallback,
-        OpsConjugateGradientCallback.name(): OpsConjugateGradientCallback,
-        OpsCholeskyCallback.name(): OpsCholeskyCallback,
-        OpsGradientDescentCallback.name(): OpsGradientDescentCallback,
-        OpsGaussNewtonCallback.name(): OpsGaussNewtonCallback,
-        OpsAlternatingProjectionsCallback.name(): OpsAlternatingProjectionsCallback,
-        OpsADMMCallback.name(): OpsADMMCallback,
+        BacktrackingCallback.name(): BacktrackingCallback,
+        SecantCallback.name(): SecantCallback,
+        ConjugateGradientCallback.name(): ConjugateGradientCallback,
+        CholeskyCallback.name(): CholeskyCallback,
+        GradientDescentCallback.name(): GradientDescentCallback,
+        GaussNewtonCallback.name(): GaussNewtonCallback,
+        AlternatingProjectionsCallback.name(): AlternatingProjectionsCallback,
+        ADMMCallback.name(): ADMMCallback,
     }[name]
