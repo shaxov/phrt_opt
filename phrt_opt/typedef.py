@@ -33,6 +33,9 @@ DEFAULT_CG_PARAMS = dict(
     max_iter=DEFAULT_CG_MAX_ITER,
     dlt=DEFAULT_REG_DLT,
 )
+DEFAULT_CHOLESKY_PARAMS = dict(
+    dlt=DEFAULT_REG_DLT,
+)
 DEFAULT_QUADPROG_PARAMS = DEFAULT_CG_PARAMS
 
 from phrt_opt import quadprog
