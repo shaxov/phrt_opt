@@ -81,7 +81,7 @@ def admm(tm, b, *,
          tol: float = typedef.DEFAULT_TOL,
          max_iter: int = typedef.DEFAULT_MAX_ITER,
          metric: callable = typedef.DEFAULT_METRIC,
-         rho_strategy: callable = typedef.DEFAULT_RHO_STRATEGY,
+         strategy: callable = typedef.DEFAULT_STRATEGY,
          callbacks: typing.List[callable] = None,
          random_state: np.random.RandomState = None,
          tm_pinv: np.ndarray = None):
@@ -101,7 +101,7 @@ def admm(tm, b, *,
         z = b * np.exp(1j * np.angle(tm_x - eps + lmd))
         x = tm_pinv.dot(z + eps - lmd)
         y = tm.dot(x)
-        rho = rho_strategy(it, y, z)
+        rho = strategy(it, y, z)
         eps = (rho / (1 + rho)) * (y - z + lmd)
         lmd = lmd + y - z - eps
         it += 1
