@@ -46,8 +46,8 @@ class Secant:
             IMA Journal of Numerical Analysis, Volume 8, Issue 1, January 1988, Pages 141–148,
     """
 
-    def __init__(self, backtracking, sym=False):
-        self.backtracking = backtracking
+    def __init__(self, linesearch, sym=False):
+        self.linesearch = linesearch
         self.prev_x, self.prev_p = None, None
 
     @staticmethod
@@ -57,14 +57,14 @@ class Secant:
     def __call__(self, fun, x, p):
         if self.prev_x is None or self.prev_p is None:
             self.prev_x, self.prev_p = x, p
-            return self.backtracking(fun, x, p)
+            return self.linesearch(fun, x, p)
         sk, yk = x - self.prev_x, p - self.prev_p
         self.prev_x, self.prev_p = x, p
         ck = np.real(np.vdot(sk, yk))
         if ck > 0:
             return ck / (np.vdot(yk, yk) + np.finfo(float).eps) if sym \
-                else np.vdot(sk, sk) / (ck + + np.finfo(float).eps)
-        return self.backtracking(fun, x, p)
+                else np.vdot(sk, sk) / (ck + np.finfo(float).eps)
+        return self.linesearch(fun, x, p)
 
 
 def get(name):
