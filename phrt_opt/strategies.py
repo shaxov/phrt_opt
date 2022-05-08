@@ -54,7 +54,7 @@ def average_distance_strategy(min_norm_dist=0., avg_factor=0.5):
     return _strategy
 
 
-def rho_opt_strategy(thresh_dist=0., thresh_rho=1.):
+def auto_strategy(thresh_dist=0., thresh_rho=1.):
 
     def _strategy(it, y, z):
         alpha = np.real(np.conj(y) * z) / np.abs(z) ** 2 - 1
@@ -73,5 +73,5 @@ def get(name):
         "expon": exponential_strategy,
         "dist": distance_strategy,
         "avg_dist": average_distance_strategy,
-        "rho_opt": rho_opt_strategy,
+        "auto": auto_strategy,
     }[name]
