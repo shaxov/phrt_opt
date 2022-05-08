@@ -210,6 +210,29 @@ class OpsConjugateGradientCallback(OpsQuadprogCallback):
                conjugate_gradient.it * counters.conjugate_gradient_init(*self.shape)
 
 
+class OpsCholeskyCallback(OpsQuadprogCallback):
+
+    def __init__(self, tm, b,
+                 quadprog_params=typedef.DEFAULT_CHOLESKY_PARAMS,
+                 preliminary_step: callable = None):
+        super().__init__(tm, b, quadprog_params, preliminary_step)
+
+    @staticmethod
+    def name():
+        return "cholesky"
+
+    def __call__(self, x):
+        args = (x,)
+        if self.preliminary_step is not None:
+            args = self.preliminary_step(x)
+
+        cholesky = Cholesky(**self.quadprog_params)
+        self.result = cholesky(*args)
+
+        return counters.cholesky_init(*self.shape) + \
+               cholesky.it * counters.cholesky_step(*self.shape)
+
+
 
 class OpsGradientDescentCallback:
 
@@ -269,3 +292,14 @@ class OpsADMMCallback:
 
     def __call__(self, x):
         return counters.admm(*self.shape)
+
+
+def get_ops(name):
+    return {
+        OpsBacktrackingCallback.name(): OpsBacktrackingCallback,
+        OpsSecantCallback.name(): OpsSecantCallback,
+        OpsConjugateGradientCallback.name(): OpsConjugateGradientCallback,
+        OpsCholeskyCallback.name(): OpsCholeskyCallback,
+        OpsGradientDescentCallback.name(): OpsGradientDescentCallback,
+        OpsGaussNewtonCallback.name(): OpsGaussNewtonCallback,
+    }[name]
