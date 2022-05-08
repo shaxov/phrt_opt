@@ -1,5 +1,5 @@
 from copy import deepcopy
-from phrt_opt.strategy import get as get_strategy
+from phrt_opt.strategies import get as get_strategy
 from phrt_opt.quadprog import get as get_quadprog
 from phrt_opt.linesearch import get as get_linesearch
 from phrt_opt.methods import get as get_method
