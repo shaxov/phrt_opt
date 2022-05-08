@@ -3,20 +3,20 @@ from phrt_opt.metrics import projection_norm
 from scipy.optimize import curve_fit
 
 
-def constant_strategy(rho=.5):
+def constant(rho=1.):
     """ Constant strategy for regularization parameter rho. """
 
     return lambda it, y, z: rho
 
 
-def linear_strategy(thresh_iter=10, rho=.5, thresh_dist=.5):
+def linear(thresh_iter=10, rho=.5, thresh_dist=.5):
     """ Linear strategy for regularization parameter rho. """
 
     return lambda it, y, z: rho / thresh_iter * it \
         if it < thresh_iter and projection_norm(y, z) > thresh_dist else rho
 
 
-def exponential_strategy(thresh_iter=10, rho=.5, thresh_dist=.5):
+def exponential(thresh_iter=10, rho=.5, thresh_dist=.5):
     """ Exponential strategy for regularization parameter rho. """
 
     xx = np.array([0, 1.5 * thresh_iter / 2, thresh_iter])
@@ -30,13 +30,13 @@ def exponential_strategy(thresh_iter=10, rho=.5, thresh_dist=.5):
         if it < thresh_iter and projection_norm(y, z) > thresh_dist else rho
 
 
-def distance_strategy(min_norm_dist=0.):
+def distance(min_norm_dist=0.):
     """ Distance based strategy for regularization parameter rho. """
 
     return lambda it, y, z: 1 - np.clip(projection_norm(y, z) - min_norm_dist, 0., 1.)
 
 
-def average_distance_strategy(min_norm_dist=0., avg_factor=0.5):
+def average_distance(min_norm_dist=0., avg_factor=0.5):
     """ Distance based strategy for regularization parameter rho. """
 
     prev_dist = None
@@ -54,7 +54,7 @@ def average_distance_strategy(min_norm_dist=0., avg_factor=0.5):
     return _strategy
 
 
-def auto_strategy(thresh_dist=0., thresh_rho=1.):
+def auto(thresh_dist=0., thresh_rho=1.):
 
     def _strategy(it, y, z):
         alpha = np.real(np.conj(y) * z) / np.abs(z) ** 2 - 1
@@ -68,10 +68,10 @@ def auto_strategy(thresh_dist=0., thresh_rho=1.):
 
 def get(name):
     return {
-        "const": constant_strategy,
-        "linear": linear_strategy,
-        "expon": exponential_strategy,
-        "dist": distance_strategy,
-        "avg_dist": average_distance_strategy,
-        "auto": auto_strategy,
+        "constant": constant,
+        "linear": linear,
+        "exponential": exponential,
+        "distance": distance,
+        "average_distance": average_distance,
+        "auto": auto,
     }[name]
