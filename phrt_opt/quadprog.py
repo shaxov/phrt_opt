@@ -17,8 +17,8 @@ class ConjugateGradient:
         self.dlt = dlt
         self.it = 0
 
-    @property
-    def name(self):
+    @staticmethod
+    def name():
         return "conjugate_gradient"
 
     def __call__(self, mat, b):
@@ -55,8 +55,8 @@ class Cholesky:
         self.dlt = dlt
         self.it = 1
 
-    @property
-    def name(self):
+    @staticmethod
+    def name():
         return "cholesky"
 
     def __call__(self, mat, b):
@@ -71,3 +71,10 @@ class Cholesky:
         y = solve_triangular(L, b, lower=True)
         x = solve_triangular(Lh, y)
         return x
+
+
+def get(name):
+    return {
+        ConjugateGradient.name(): ConjugateGradient,
+        Cholesky.name(): Cholesky,
+    }[name]
