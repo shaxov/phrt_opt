@@ -46,3 +46,12 @@ def alternating_projections(tm, b, params: dict):
 
 def admm(tm, b, params: dict):
     return counters.ADMMCallback(np.shape(tm))
+
+
+def get(name):
+    return {
+        "admm": admm,
+        "alternating_projections": alternating_projections,
+        "gradient_descent": gradient_descent,
+        "gauss_newton": gauss_newton,
+    }[name]

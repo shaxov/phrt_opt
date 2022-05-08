@@ -22,7 +22,7 @@ DEFAULT_BACKTRACKING_PARAMS = dict(
 DEFAULT_LINESEARCH_PARAMS = DEFAULT_BACKTRACKING_PARAMS
 DEFAULT_SECANT_LINESEARCH_PARAMS = dict(sym=False)
 from phrt_opt import linesearch
-DEFAULT_LINESEARCH = linesearch.Backtracking
+DEFAULT_LINESEARCH = linesearch.Backtracking()
 
 DEFAULT_CG_TOL = 1e-8
 DEFAULT_CG_MAX_ITER = None
@@ -39,4 +39,4 @@ DEFAULT_CHOLESKY_PARAMS = dict(
 DEFAULT_QUADPROG_PARAMS = DEFAULT_CG_PARAMS
 
 from phrt_opt import quadprog
-DEFAULT_QUADPROG = quadprog.ConjugateGradient
+DEFAULT_QUADPROG = quadprog.ConjugateGradient()

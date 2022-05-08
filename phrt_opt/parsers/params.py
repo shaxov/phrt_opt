@@ -7,9 +7,10 @@ from phrt_opt.methods import get as get_method
 
 def linesearch(params: dict):
     linesearch_class = get_linesearch(params["name"])
-    if "linesearch" not in params:
-        return linesearch_class(**params["params"])
-    params_c = deepcopy(params["params"])
+    params_params = params.get("params", {})
+    if "linesearch" not in params_params:
+        return linesearch_class(**params_params)
+    params_c = deepcopy(params_params)
     nested = params_c.pop("linesearch")
     return linesearch_class(linesearch=linesearch(nested), **params_c)
 
@@ -28,11 +29,14 @@ def method(params: dict):
     parsed_method_params = {}
     method_params = deepcopy(params["params"])
     if "linesearch" in method_params:
-        parsed_method_params["linesearch"] = linesearch(method_params.pop("linesearch"))
+        parsed_method_params["linesearch"] = linesearch(method_params["linesearch"])
+        method_params.pop("linesearch")
     if "quadprog" in method_params:
-        parsed_method_params["quadprog"] = quadprog(method_params.pop("quadprog"))
+        parsed_method_params["quadprog"] = quadprog(method_params["quadprog"])
+        method_params.pop("quadprog")
     if "strategy" in method_params:
-        parsed_method_params["strategy"] = strategy(method_params.pop("strategy"))
+        parsed_method_params["strategy"] = strategy(method_params["strategy"])
+        method_params.pop("strategy")
     parsed_method_params.update(method_params)
 
     return lambda *args, **kwargs: method_function(*args, **kwargs, **parsed_method_params)

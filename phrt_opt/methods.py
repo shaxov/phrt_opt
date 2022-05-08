@@ -12,10 +12,8 @@ def gradient_descent(tm, b, *,
                      metric: callable = typedef.DEFAULT_METRIC,
                      callbacks: typing.List[callable] = None,
                      random_state: np.random.RandomState = None,
-                     linesearch: callable = typedef.DEFAULT_LINESEARCH,
-                     linesearch_params: dict = typedef.DEFAULT_LINESEARCH_PARAMS):
+                     linesearch: callable = typedef.DEFAULT_LINESEARCH):
     dim = np.shape(tm)[1]
-    linesearch = linesearch(**linesearch_params)
     fun = phrt_opt.utils.define_objective(tm, b)
     gradient = phrt_opt.utils.define_gradient(tm, b)
     if x0 is None:
@@ -36,12 +34,8 @@ def gauss_newton(tm, b, *,
                  callbacks: typing.List[callable] = None,
                  random_state: np.random.RandomState = None,
                  quadprog: callable = typedef.DEFAULT_QUADPROG,
-                 quadprog_params: dict = typedef.DEFAULT_QUADPROG_PARAMS,
-                 linesearch: callable = typedef.DEFAULT_LINESEARCH,
-                 linesearch_params: dict = typedef.DEFAULT_LINESEARCH_PARAMS):
+                 linesearch: callable = typedef.DEFAULT_LINESEARCH):
     dim = np.shape(tm)[1]
-    quadprog = quadprog(**quadprog_params)
-    linesearch = linesearch(**linesearch_params)
     fun = phrt_opt.utils.define_objective(tm, b)
     gauss_newton_system = phrt_opt.utils.define_gauss_newton_system(tm, b)
     if x0 is None:

@@ -1,4 +1,5 @@
 from . import ops
+from . import parsers
 from . import methods
 from . import metrics
 from . import callbacks
