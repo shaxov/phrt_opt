@@ -6,8 +6,8 @@ DEFAULT_POWER_METHOD_TOL = 1e-3
 from phrt_opt import metrics
 DEFAULT_METRIC = metrics.quality_norm
 
-from phrt_opt import strategies
-DEFAULT_RHO_STRATEGY = strategies.constant_strategy()
+from phrt_opt import strategy
+DEFAULT_RHO_STRATEGY = strategy.constant()
 
 DEFAULT_BACKTRACKING_RATE = .5
 DEFAULT_BACKTRACKING_MAX_ITER = 100
