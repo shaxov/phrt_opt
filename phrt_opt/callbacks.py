@@ -48,6 +48,34 @@ class MetricCallback:
         return self.metric(x, self.x_opt)
 
 
+class RhoStrategyCallback:
+
+    def __init__(self, tm, tm_pinv, b, strategy):
+        m = np.shape(tm)[0]
+        self.lmd = np.zeros(shape=(m, 1)) + 1j * np.zeros(shape=(m, 1))
+        self.eps = np.zeros(shape=(m, 1)) + 1j * np.zeros(shape=(m, 1))
+        self.strategy = strategy
+
+        self.tm = tm
+        self.tm_pinv = tm_pinv
+        self.b = b
+        self.it = 0
+
+    def __call__(self, x):
+        tm_x = self.tm.dot(x)
+        z = self.b * np.exp(1j * np.angle(tm_x - self.eps + self.lmd))
+        x = self.tm_pinv.dot(z + self.eps - self.lmd)
+        y = self.tm.dot(x)
+
+        rho = self.strategy(self.it, y, z)
+
+        # self.eps = (rho / (1 + rho)) * (y - z + self.lmd)
+        # self.lmd = self.lmd + y - z - self.eps
+        self.it += 1
+        return rho
+
+
+
 class OpsCallback(metaclass=abc.ABCMeta):
 
     def __init__(self, tm, b, preliminary_step: callable = None):
@@ -56,6 +84,11 @@ class OpsCallback(metaclass=abc.ABCMeta):
         self.shape = np.shape(tm)
 
         self.result = None
+
+    @staticmethod
+    @abc.abstractmethod
+    def name():
+        pass
 
     @abc.abstractmethod
     def __call__(self, x):
@@ -89,6 +122,10 @@ class OpsBacktrackingCallback(OpsLinesearchCallback):
                  preliminary_step: callable = None):
         super().__init__(tm, b, linesearch_params, preliminary_step)
 
+    @staticmethod
+    def name():
+        return "backtracking"
+
     def __call__(self, x, p=None):
         if p is None:
             p = self.gradient(x)
@@ -116,6 +153,10 @@ class OpsSecantCallback(OpsLinesearchCallback):
         )
         self.prev_x, self.prev_p = None, None
         self.ops_backtracking_callback = ops_backtracking_callback
+
+    @staticmethod
+    def name():
+        return "secant"
 
     def __call__(self, x, p=None):
         args = (x,)
@@ -153,6 +194,10 @@ class OpsConjugateGradientCallback(OpsQuadprogCallback):
                  preliminary_step: callable = None):
         super().__init__(tm, b, quadprog_params, preliminary_step)
 
+    @staticmethod
+    def name():
+        return "conjugate_gradient"
+
     def __call__(self, x):
         args = (x,)
         if self.preliminary_step is not None:
@@ -171,6 +216,10 @@ class OpsGradientDescentCallback:
     def __init__(self, ops_linesearch_callback: OpsLinesearchCallback):
         self.ops_linesearch_callback = ops_linesearch_callback
 
+    @staticmethod
+    def name():
+        return "gradient_descent"
+
     def __call__(self, x):
         return counters.gradient_descent(*self.ops_linesearch_callback.shape) + \
                self.ops_linesearch_callback(x)
@@ -183,6 +232,10 @@ class OpsGaussNewtonCallback:
                  ops_quadprog_callback: OpsQuadprogCallback):
         self.ops_linesearch_callback = ops_linesearch_callback
         self.ops_quadprog_callback = ops_quadprog_callback
+
+    @staticmethod
+    def name():
+        return "gauss_newton"
 
     def __call__(self, x):
         ops_gauss_newton = counters.gauss_newton(*self.ops_linesearch_callback.shape)
@@ -197,6 +250,10 @@ class OpsAlternatingProjectionsCallback:
     def __init__(self, shape: tuple):
         self.shape = shape
 
+    @staticmethod
+    def name():
+        return "alternating_projections"
+
     def __call__(self, x):
         return counters.alternating_projections(*self.shape)
 
@@ -206,32 +263,9 @@ class OpsADMMCallback:
     def __init__(self, shape: tuple):
         self.shape = shape
 
+    @staticmethod
+    def name():
+        return "admm"
+
     def __call__(self, x):
         return counters.admm(*self.shape)
-
-
-class RhoStrategyCallback:
-
-    def __init__(self, tm, tm_pinv, b, strategy):
-        m = np.shape(tm)[0]
-        self.lmd = np.zeros(shape=(m, 1)) + 1j * np.zeros(shape=(m, 1))
-        self.eps = np.zeros(shape=(m, 1)) + 1j * np.zeros(shape=(m, 1))
-        self.strategy = strategy
-
-        self.tm = tm
-        self.tm_pinv = tm_pinv
-        self.b = b
-        self.it = 0
-
-    def __call__(self, x):
-        tm_x = self.tm.dot(x)
-        z = self.b * np.exp(1j * np.angle(tm_x - self.eps + self.lmd))
-        x = self.tm_pinv.dot(z + self.eps - self.lmd)
-        y = self.tm.dot(x)
-
-        rho = self.strategy(self.it, y, z)
-
-        # self.eps = (rho / (1 + rho)) * (y - z + self.lmd)
-        # self.lmd = self.lmd + y - z - self.eps
-        self.it += 1
-        return rho
