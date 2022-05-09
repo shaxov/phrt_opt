@@ -78,17 +78,17 @@ class BacktrackingCallback(_LinesearchCallback):
 class SecantCallback(_LinesearchCallback):
 
     def __init__(self,
-                 ops_backtracking_callback: BacktrackingCallback,
+                 backtracking_callback: BacktrackingCallback,
                  linesearch_params=typedef.DEFAULT_LINESEARCH_PARAMS,
                  preliminary_step: callable = None):
         super().__init__(
-            ops_backtracking_callback.tm,
-            ops_backtracking_callback.b,
+            backtracking_callback.tm,
+            backtracking_callback.b,
             linesearch_params,
             preliminary_step,
         )
         self.prev_x, self.prev_p = None, None
-        self.ops_backtracking_callback = ops_backtracking_callback
+        self.ops_backtracking_callback = backtracking_callback
 
     @staticmethod
     def name():
@@ -170,35 +170,35 @@ class CholeskyCallback(_QuadprogCallback):
 
 class GradientDescentCallback:
 
-    def __init__(self, ops_linesearch_callback: _LinesearchCallback):
-        self.ops_linesearch_callback = ops_linesearch_callback
+    def __init__(self, linesearch_callback: _LinesearchCallback):
+        self.linesearch_callback = linesearch_callback
 
     @staticmethod
     def name():
         return "gradient_descent"
 
     def __call__(self, x):
-        return counters.gradient_descent(*self.ops_linesearch_callback.shape) + \
-               self.ops_linesearch_callback(x)
+        return counters.gradient_descent(*self.linesearch_callback.shape) + \
+               self.linesearch_callback(x)
 
 
 class GaussNewtonCallback:
 
     def __init__(self,
-                 ops_linesearch_callback: _LinesearchCallback,
-                 ops_quadprog_callback: _QuadprogCallback):
-        self.ops_linesearch_callback = ops_linesearch_callback
-        self.ops_quadprog_callback = ops_quadprog_callback
+                 linesearch_callback: _LinesearchCallback,
+                 quadprog_callback: _QuadprogCallback):
+        self.linesearch_callback = linesearch_callback
+        self.quadprog_callback = quadprog_callback
 
     @staticmethod
     def name():
         return "gauss_newton"
 
     def __call__(self, x):
-        ops_gauss_newton = counters.gauss_newton(*self.ops_linesearch_callback.shape)
-        ops_quadprog_count = self.ops_quadprog_callback(x)
-        ops_linesearch_count = self.ops_linesearch_callback(
-            x, self.ops_quadprog_callback.result[:self.ops_linesearch_callback.shape[1]])
+        ops_gauss_newton = counters.gauss_newton(*self.linesearch_callback.shape)
+        ops_quadprog_count = self.quadprog_callback(x)
+        ops_linesearch_count = self.linesearch_callback(
+            x, self.quadprog_callback.result[:self.linesearch_callback.shape[1]])
         return ops_gauss_newton + ops_quadprog_count + ops_linesearch_count
 
 
@@ -228,14 +228,20 @@ class ADMMCallback:
         return counters.admm(*self.shape)
 
 
-class PowerMethodCallback:
+class EigCallback(metaclass=abc.ABCMeta):
+
+    def __init__(self, preliminary_step: callable = None):
+        self.preliminary_step = preliminary_step
+        self.result = None
+
+
+class PowerMethodCallback(EigCallback):
 
     def __init__(self,
                  tol=typedef.DEFAULT_POWER_METHOD_TOL,
                  preliminary_step: callable = None):
+        super().__init__(preliminary_step)
         self.power_method = phrt_opt.utils.PowerMethod(tol)
-        self.preliminary_step = preliminary_step
-        self.result = None
 
     @staticmethod
     def name():
@@ -251,6 +257,29 @@ class PowerMethodCallback:
                self.power_method.it * counters.power_method_step(n)
 
 
+class RandomInitializationCallback:
+
+    @staticmethod
+    def name():
+        return "random"
+
+    def __call__(self, tm, b):
+        return 0.
+
+
+class WirtingerInitializationCallback:
+
+    def __init__(self, eig_callback: EigCallback):
+        self.eig_callback = eig_callback
+
+    @staticmethod
+    def name():
+        return "wirtinger"
+
+    def __call__(self, tm, b):
+        return counters.wirtinger(*np.shape(tm)) + self.eig_callback(tm, b)
+
+
 def get(name):
     return {
         BacktrackingCallback.name(): BacktrackingCallback,
@@ -262,4 +291,6 @@ def get(name):
         AlternatingProjectionsCallback.name(): AlternatingProjectionsCallback,
         ADMMCallback.name(): ADMMCallback,
         PowerMethodCallback.name(): PowerMethodCallback,
+        WirtingerInitializationCallback.name(): WirtingerInitializationCallback,
+        RandomInitializationCallback.name(): RandomInitializationCallback,
     }[name]
