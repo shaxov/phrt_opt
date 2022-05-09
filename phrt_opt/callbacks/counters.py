@@ -6,6 +6,7 @@ from phrt_opt.ops import counters
 from phrt_opt.linesearch import Backtracking
 from phrt_opt.quadprog import Cholesky
 from phrt_opt.quadprog import ConjugateGradient
+from phrt_opt.eig import PowerMethod
 
 
 class _Callback(metaclass=abc.ABCMeta):
@@ -238,10 +239,10 @@ class EigCallback(metaclass=abc.ABCMeta):
 class PowerMethodCallback(EigCallback):
 
     def __init__(self,
-                 tol=typedef.DEFAULT_POWER_METHOD_TOL,
+                 power_method_params: dict,
                  preliminary_step: callable = None):
         super().__init__(preliminary_step)
-        self.power_method = phrt_opt.utils.PowerMethod(tol)
+        self.power_method = PowerMethod(power_method_params.get('tol'))
 
     @staticmethod
     def name():
