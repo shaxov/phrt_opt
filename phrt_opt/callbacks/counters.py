@@ -37,6 +37,10 @@ class _LinesearchCallback(_Callback, metaclass=abc.ABCMeta):
         self.gradient = phrt_opt.utils.define_gradient(tm, b)
         self.linesearch_params = linesearch_params
 
+    @abc.abstractmethod
+    def __call__(self, x, p=None):
+        pass
+
 
 class _QuadprogCallback(_Callback, metaclass=abc.ABCMeta):
 
@@ -164,7 +168,6 @@ class CholeskyCallback(_QuadprogCallback):
                cholesky.it * counters.cholesky_step(*self.shape)
 
 
-
 class GradientDescentCallback:
 
     def __init__(self, ops_linesearch_callback: _LinesearchCallback):
@@ -225,6 +228,29 @@ class ADMMCallback:
         return counters.admm(*self.shape)
 
 
+class PowerMethodCallback:
+
+    def __init__(self,
+                 tol=typedef.DEFAULT_POWER_METHOD_TOL,
+                 preliminary_step: callable = None):
+        self.power_method = phrt_opt.utils.PowerMethod(tol)
+        self.preliminary_step = preliminary_step
+        self.result = None
+
+    @staticmethod
+    def name():
+        return "power_method"
+
+    def __call__(self, *args):
+        mat = args[0]
+        if self.preliminary_step is not None:
+            mat = self.preliminary_step(*args)
+        n = np.shape(mat)[0]
+        self.result = self.power_method(mat)
+        return counters.power_method_init(n) + \
+               self.power_method.it * counters.power_method_step(n)
+
+
 def get(name):
     return {
         BacktrackingCallback.name(): BacktrackingCallback,
@@ -235,4 +261,5 @@ def get(name):
         GaussNewtonCallback.name(): GaussNewtonCallback,
         AlternatingProjectionsCallback.name(): AlternatingProjectionsCallback,
         ADMMCallback.name(): ADMMCallback,
+        PowerMethodCallback.name(): PowerMethodCallback,
     }[name]
