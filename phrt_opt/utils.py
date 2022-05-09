@@ -2,26 +2,33 @@ import numpy as np
 from phrt_opt import typedef
 
 
-def power_method(mat, tol=typedef.DEFAULT_POWER_METHOD_TOL):
-    n = np.shape(mat)[1]
+class PowerMethod:
 
-    def eig(mat_, v_):
-        mat_v_ = mat_.dot(v_)
-        v_conj_ = np.conj(v_)
+    def __init__(self, tol=typedef.DEFAULT_POWER_METHOD_TOL):
+        self.tol = tol
+        self.it = 0
+
+    @staticmethod
+    def _eig(mat, v):
+        mat_v_ = mat.dot(v)
+        v_conj_ = np.conj(v)
         v_conj_mat_v_ = v_conj_.dot(mat_v_)
         return np.squeeze(v_conj_mat_v_)[()]
 
-    v = np.ones(n) / np.sqrt(n)
-    lmd = eig(mat, v)
-    while True:
-        mat_v = mat.dot(v)
-        v = mat_v / np.linalg.norm(mat_v)
-        lmd_n = eig(mat, v)
-        success = np.abs(lmd - lmd_n) < tol
-        lmd = lmd_n
-        if success:
-            break
-    return lmd, v[:, np.newaxis]
+    def __call__(self, mat):
+        n = np.shape(mat)[1]
+        v = np.ones(n) / np.sqrt(n)
+        lmd = PowerMethod._eig(mat, v)
+        while True:
+            mat_v = mat.dot(v)
+            v = mat_v / np.linalg.norm(mat_v)
+            lmd_n = PowerMethod._eig(mat, v)
+            success = np.abs(lmd - lmd_n) < self.tol
+            lmd = lmd_n
+            self.it += 1
+            if success:
+                break
+        return lmd, v[:, np.newaxis]
 
 
 def define_objective(tm, b):
@@ -67,6 +74,14 @@ def define_gauss_newton_system(tm, b):
         return hk, gk
 
     return system
+
+
+def compute_initialization_matrix(tm, b):
+    m, n = np.shape(tm)
+    b2 = np.square(b[..., np.newaxis])
+    mat = tm[..., np.newaxis].conj() * tm[:, np.newaxis]
+    mat = np.sum(b2 * mat, axis=0) / m
+    return mat
 
 
 def random_x0(dim, random_state=None):
