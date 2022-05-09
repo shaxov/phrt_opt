@@ -3,6 +3,7 @@ from phrt_opt.strategies import get as get_strategy
 from phrt_opt.quadprog import get as get_quadprog
 from phrt_opt.linesearch import get as get_linesearch
 from phrt_opt.methods import get as get_method
+from phrt_opt.initializers import get as get_initializer
 
 
 def linesearch(params: dict):
@@ -40,3 +41,9 @@ def method(params: dict):
     parsed_method_params.update(method_params)
 
     return lambda *args, **kwargs: method_function(*args, **kwargs, **parsed_method_params)
+
+
+def initializer(params: dict, random_state=None):
+    initializer_class = get_initializer(params["name"])
+    initializer_params = params["params"] if "params" in params else {}
+    return initializer_class(**initializer_params, random_state=random_state)
