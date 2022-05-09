@@ -122,7 +122,9 @@ def cholesky_step(m, n):
 
 
 def power_method_init(n):
-    return 0.
+    flops = (n + 1) * c_ops_costs.dot(n)
+    flops += n * r_ops_costs.div
+    return flops
 
 
 def power_method_step(n):
