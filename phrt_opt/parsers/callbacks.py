@@ -48,10 +48,26 @@ def admm(tm, b, params: dict):
     return counters.ADMMCallback(np.shape(tm))
 
 
+def random(params: dict):
+    return counters.RandomInitializationCallback()
+
+
+def wirtinger(params: dict):
+    return counters.WirtingerInitializationCallback(
+        counters.get(params["eig"]["name"])(
+            params["eig"]["params"],
+            preliminary_step=phrt_opt.utils.compute_initialization_matrix,
+        )
+    )
+
+
 def get(name):
     return {
         "admm": admm,
         "alternating_projections": alternating_projections,
         "gradient_descent": gradient_descent,
         "gauss_newton": gauss_newton,
+
+        "random": random,
+        "wirtinger": wirtinger,
     }[name]
