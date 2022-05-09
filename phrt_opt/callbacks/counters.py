@@ -27,7 +27,7 @@ class _Callback(metaclass=abc.ABCMeta):
         pass
 
 
-class _LinesearchCallback(_Callback):
+class _LinesearchCallback(_Callback, metaclass=abc.ABCMeta):
 
     def __init__(self, tm, b,
                  linesearch_params: dict,
@@ -38,7 +38,7 @@ class _LinesearchCallback(_Callback):
         self.linesearch_params = linesearch_params
 
 
-class _QuadprogCallback(_Callback):
+class _QuadprogCallback(_Callback, metaclass=abc.ABCMeta):
 
     def __init__(self, tm, b,
                  quadprog_params: dict,
@@ -91,9 +91,8 @@ class SecantCallback(_LinesearchCallback):
         return "secant"
 
     def __call__(self, x, p=None):
-        args = (x,)
         if self.preliminary_step is not None:
-            args = self.preliminary_step(x)
+            x = self.preliminary_step(x)
 
         if p is None:
             p = self.gradient(x)
@@ -108,9 +107,9 @@ class SecantCallback(_LinesearchCallback):
         self.prev_x, self.prev_p = x, p
         ck = np.real(np.vdot(sk, yk))
         if ck > 0:
-            self.result =ck / (np.vdot(yk, yk) + np.finfo(float).eps) \
+            self.result = ck / (np.vdot(yk, yk) + np.finfo(float).eps) \
                 if self.linesearch_params.get('sym') \
-                else np.vdot(sk, sk) / (ck + + np.finfo(float).eps)
+                else np.vdot(sk, sk) / (ck + np.finfo(float).eps)
             return counters.secant_init(*self.shape) + \
                    counters.secant_step(*self.shape)
 
