@@ -3,12 +3,15 @@ from phrt_opt import utils
 from phrt_opt import typedef
 
 
-class Random:
+class _Initializer:
 
     def __init__(self, random_state=None):
         self.random_state = random_state
         if random_state is None:
             self.random_state = np.random.RandomState()
+
+
+class Random(_Initializer):
 
     def __call__(self, tm, b):
         """ Random starting point generation. """
@@ -17,9 +20,10 @@ class Random:
         return x0
 
 
-class Wirtinger:
+class Wirtinger(_Initializer):
 
-    def __init__(self, tol=typedef.DEFAULT_POWER_METHOD_TOL):
+    def __init__(self, tol=typedef.DEFAULT_POWER_METHOD_TOL, random_state=None):
+        super().__init__(random_state=random_state)
         self.tol = tol
 
     def __call__(self, tm, b):
