@@ -1,3 +1,4 @@
+import abc
 import numpy as np
 import phrt_opt.utils
 
@@ -9,8 +10,17 @@ class _Initializer:
         if random_state is None:
             self.random_state = np.random.RandomState()
 
+    @staticmethod
+    @abc.abstractmethod
+    def name():
+        pass
+
 
 class Random(_Initializer):
+
+    @staticmethod
+    def name():
+        return "random"
 
     def __call__(self, tm, b):
         """ Random starting point generation. """
@@ -31,6 +41,10 @@ class Wirtinger(_Initializer):
         super().__init__(random_state=random_state)
         self.eig = eig
 
+    @staticmethod
+    def name():
+        return "wirtinger"
+
     def __call__(self, tm, b):
         _, n = np.shape(tm)
         matrix = phrt_opt.utils.compute_initialization_matrix(tm, b)
@@ -44,6 +58,6 @@ class Wirtinger(_Initializer):
 
 def get(name):
     return {
-        "random": Random,
-        "wirtinger": Wirtinger,
+        Random.name(): Random,
+        Wirtinger.name(): Wirtinger,
     }[name]
