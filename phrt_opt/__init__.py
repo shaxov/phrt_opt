@@ -1,4 +1,5 @@
 from . import ops
+from . import eig
 from . import parsers
 from . import methods
 from . import metrics
@@ -10,5 +11,5 @@ from collections import namedtuple
 from .typedef import *
 
 
-Optimizer = namedtuple('Optimizer', ['name', 'method', 'params'])
-Initializer = namedtuple('Initializer', ['name', 'method', 'params'])
+Optimizer = namedtuple('Optimizer', ['name', 'callable', 'params'])
+Initializer = namedtuple('Initializer', ['name', 'callable', 'counter_callback'])
