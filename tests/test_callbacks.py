@@ -33,6 +33,7 @@ class TestCallbacks(unittest.TestCase):
                 IsConvergedCallback(quality_norm, 1e-6),
                 MetricCallback(x, quality_norm),
             ],
+            persist_iterations=True,
         )
         dist = phrt_opt.metrics.quality_norm(x, x_bar)
         self.assertAlmostEqual(dist, 1.66825933511916e-07)
@@ -53,6 +54,7 @@ class TestCallbacks(unittest.TestCase):
                     BacktrackingCallback(self.tm, self.b),
                 ),
             ],
+            persist_iterations=True,
         )
         dist = phrt_opt.metrics.quality_norm(x, x_bar)
         self.assertAlmostEqual(dist, 7.197200514452717e-06)
@@ -76,6 +78,7 @@ class TestCallbacks(unittest.TestCase):
                     ),
                 ),
             ],
+            persist_iterations=True,
         )
         dist = phrt_opt.metrics.quality_norm(x, x_bar)
         self.assertAlmostEqual(dist, 7.197200514452717e-06)
@@ -102,6 +105,7 @@ class TestCallbacks(unittest.TestCase):
                     ),
                 ),
             ],
+            persist_iterations=True,
         )
         dist = phrt_opt.metrics.quality_norm(x, x_bar)
         self.assertAlmostEqual(dist, 3.3306690738754696e-16)
@@ -119,6 +123,7 @@ class TestCallbacks(unittest.TestCase):
             callbacks=[
                 AlternatingProjectionsCallback(np.shape(self.tm)),
             ],
+            persist_iterations=True,
         )
         dist = phrt_opt.metrics.quality_norm(x, x_bar)
         self.assertAlmostEqual(dist, 1.66825933511916e-07)
@@ -136,6 +141,7 @@ class TestCallbacks(unittest.TestCase):
             callbacks=[
                 ADMMCallback(np.shape(self.tm)),
             ],
+            persist_iterations=True,
         )
         dist = phrt_opt.metrics.quality_norm(x, x_bar)
         self.assertAlmostEqual(dist, 1.668259338449829e-07)
@@ -162,6 +168,7 @@ class TestCallbacks(unittest.TestCase):
                     }
                 })
             ],
+            persist_iterations=True,
         )
         _, ref_info = phrt_opt.methods.gradient_descent(
             self.tm, self.b,
@@ -173,6 +180,7 @@ class TestCallbacks(unittest.TestCase):
                     BacktrackingCallback(self.tm, self.b),
                 ),
             ],
+            persist_iterations=True,
         )
         self.assertTrue(np.allclose(info, ref_info))
 
@@ -205,6 +213,7 @@ class TestCallbacks(unittest.TestCase):
                     }
                 })
             ],
+            persist_iterations=True,
         )
         _, ref_info = phrt_opt.methods.gradient_descent(
             self.tm, self.b,
@@ -218,6 +227,7 @@ class TestCallbacks(unittest.TestCase):
                     ),
                 ),
             ],
+            persist_iterations=True,
         )
         self.assertTrue(np.allclose(info, ref_info))
 
@@ -250,6 +260,7 @@ class TestCallbacks(unittest.TestCase):
                     }
                 })
             ],
+            persist_iterations=True,
         )
         _, ref_info = phrt_opt.methods.gauss_newton(
             self.tm, self.b,
@@ -266,6 +277,7 @@ class TestCallbacks(unittest.TestCase):
                     ),
                 ),
             ],
+            persist_iterations=True,
         )
         self.assertTrue(np.allclose(info, ref_info))
 
@@ -305,6 +317,7 @@ class TestCallbacks(unittest.TestCase):
                     }
                 })
             ],
+            persist_iterations=True,
         )
         _, ref_info = phrt_opt.methods.gauss_newton(
             self.tm, self.b,
@@ -321,6 +334,7 @@ class TestCallbacks(unittest.TestCase):
                     ),
                 ),
             ],
+            persist_iterations=True,
         )
         self.assertTrue(np.allclose(info, ref_info))
 
@@ -360,6 +374,7 @@ class TestCallbacks(unittest.TestCase):
                     }
                 })
             ],
+            persist_iterations=True,
         )
         _, ref_info = phrt_opt.methods.gauss_newton(
             self.tm, self.b,
@@ -376,6 +391,7 @@ class TestCallbacks(unittest.TestCase):
                     ),
                 ),
             ],
+            persist_iterations=True,
         )
         self.assertTrue(np.allclose(info, ref_info))
 
@@ -393,6 +409,7 @@ class TestCallbacks(unittest.TestCase):
             callbacks=[
                 AlternatingProjectionsCallback(np.shape(self.tm)),
             ],
+            persist_iterations=True,
         )
         x_bar, info = phrt_opt.methods.alternating_projections(
             self.tm, self.b,
@@ -402,6 +419,7 @@ class TestCallbacks(unittest.TestCase):
             callbacks=[
                 alternating_projections(self.tm, self.b, {}),
             ],
+            persist_iterations=True,
         )
         self.assertTrue(np.allclose(info, ref_info))
 
@@ -419,6 +437,7 @@ class TestCallbacks(unittest.TestCase):
             callbacks=[
                 ADMMCallback(np.shape(self.tm)),
             ],
+            persist_iterations=True,
         )
         x_bar, info = phrt_opt.methods.admm(
             self.tm, self.b,
@@ -428,5 +447,6 @@ class TestCallbacks(unittest.TestCase):
             callbacks=[
                 admm(self.tm, self.b, {}),
             ],
+            persist_iterations=True,
         )
         self.assertTrue(np.allclose(info, ref_info))
