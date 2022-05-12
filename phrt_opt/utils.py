@@ -46,14 +46,6 @@ def define_gauss_newton_system(tm, b):
     return system
 
 
-def compute_initialization_matrix(tm, b):
-    m, n = np.shape(tm)
-    b2 = np.square(b[..., np.newaxis])
-    mat = tm[..., np.newaxis].conj() * tm[:, np.newaxis]
-    mat = np.sum(b2 * mat, axis=0) / m
-    return mat
-
-
 def random_x0(dim, random_state=None):
     if random_state is None:
         random_state = np.random.RandomState()

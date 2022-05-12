@@ -45,9 +45,16 @@ class Wirtinger(_Initializer):
     def name():
         return "wirtinger"
 
+    @staticmethod
+    def compute_initialization_matrix(tm, b):
+        m, n = np.shape(tm)
+        b2 = np.square(b[..., np.newaxis])
+        mat = tm[..., np.newaxis].conj() * tm[:, np.newaxis]
+        return np.sum(b2 * mat, axis=0) / m
+
     def __call__(self, tm, b):
         _, n = np.shape(tm)
-        matrix = phrt_opt.utils.compute_initialization_matrix(tm, b)
+        matrix = Wirtinger.compute_initialization_matrix(tm, b)
         _, v = self.eig(matrix)
         lmd = np.linalg.norm(tm, axis=1)
         lmd = np.square(lmd)

@@ -53,10 +53,12 @@ def random(params: dict):
 
 
 def wirtinger(params: dict):
+    from phrt_opt.initializers import Wirtinger
+
     return counters.WirtingerInitializationCallback(
         counters.get(params["eig"]["name"])(
             params["eig"]["params"],
-            preliminary_step=phrt_opt.utils.compute_initialization_matrix,
+            preliminary_step=Wirtinger.compute_initialization_matrix,
         )
     )
 
