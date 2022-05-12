@@ -281,6 +281,19 @@ class WirtingerInitializationCallback:
         return counters.wirtinger(*np.shape(tm)) + self.eig_callback(tm, b)
 
 
+class GaoXuInitializationCallback:
+
+    def __init__(self, eig_callback: EigCallback):
+        self.eig_callback = eig_callback
+
+    @staticmethod
+    def name():
+        return "gao_xu"
+
+    def __call__(self, tm, b):
+        return counters.gao_xu(*np.shape(tm)) + self.eig_callback(tm, b)
+
+
 def get(name):
     return {
         BacktrackingCallback.name(): BacktrackingCallback,
@@ -294,4 +307,5 @@ def get(name):
         PowerMethodCallback.name(): PowerMethodCallback,
         WirtingerInitializationCallback.name(): WirtingerInitializationCallback,
         RandomInitializationCallback.name(): RandomInitializationCallback,
+        GaoXuInitializationCallback.name(): GaoXuInitializationCallback,
     }[name]

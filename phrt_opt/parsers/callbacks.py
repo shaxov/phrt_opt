@@ -63,6 +63,18 @@ def wirtinger(params: dict):
     )
 
 
+def gao_xu(params: dict):
+    from phrt_opt.initializers import GaoXu
+
+    return counters.WirtingerInitializationCallback(
+        counters.get(params["eig"]["name"])(
+            params["eig"]["params"],
+            preliminary_step=GaoXu.compute_initialization_matrix,
+        )
+    )
+
+
+
 def get(name):
     return {
         "admm": admm,
@@ -72,4 +84,5 @@ def get(name):
 
         "random": random,
         "wirtinger": wirtinger,
+        "gao_xu": gao_xu,
     }[name]

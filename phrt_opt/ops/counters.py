@@ -145,6 +145,9 @@ def wirtinger(m, n):
     return ops_cnt
 
 
+gao_xu = wirtinger
+
+
 def get(name):
     return {
         "admm": admm,
@@ -160,4 +163,5 @@ def get(name):
         "power_method": (power_method_init, power_method_step),
 
         "wirtinger": wirtinger,
+        "gao_xu": gao_xu,
     }[name]
