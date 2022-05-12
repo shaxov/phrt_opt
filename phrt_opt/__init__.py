@@ -12,4 +12,4 @@ from .typedef import *
 
 
 Optimizer = namedtuple('Optimizer', ['name', 'callable', 'params'])
-Initializer = namedtuple('Initializer', ['name', 'callable', 'counter_callback'])
+Initializer = namedtuple('Initializer', ['name', 'callable'])
