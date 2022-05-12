@@ -61,7 +61,7 @@ def auto(thresh_dist=0., thresh_rho=1.):
         rho = 1. - np.min([1., np.max(-alpha)])
         if projection_norm(y, z) < thresh_dist:
             rho = thresh_rho
-        return rho # max(0, rho - 2*rho / np.sqrt(y.size))
+        return max(0, rho - 2*rho / np.sqrt(y.size))
 
     return _strategy
 
