@@ -94,12 +94,13 @@ class GaoXu(_Spectral):
         return np.sum(beta * mat, axis=0) / m
 
     def __call__(self, tm, b):
-        _, n = np.shape(tm)
+        m, n = np.shape(tm)
         matrix = GaoXu.compute_initialization_matrix(tm, b)
         _, v = self.eig(matrix)
         lmd = np.sum(b**2) / m
         x0 = lmd * v
         return x0
+
 
 def get(name):
     return {

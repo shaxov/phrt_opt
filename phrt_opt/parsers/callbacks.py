@@ -40,6 +40,7 @@ def gauss_newton(tm, b, params: dict):
                   preliminary_step=phrt_opt.utils.define_gauss_newton_system(tm, b))
     )
 
+
 def alternating_projections(tm, b, params: dict):
     return counters.AlternatingProjectionsCallback(np.shape(tm))
 
@@ -72,7 +73,6 @@ def gao_xu(params: dict):
             preliminary_step=GaoXu.compute_initialization_matrix,
         )
     )
-
 
 
 def get(name):
