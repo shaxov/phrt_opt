@@ -83,25 +83,24 @@ def admm(tm, b, *,
          random_state: np.random.RandomState = None,
          tm_pinv: np.ndarray = None,
          persist_iterations: bool = False):
-    m, dim = dim = np.shape(tm)
+    m, dim = np.shape(tm)
     if x0 is None:
         x0 = phrt_opt.utils.random_x0(dim, random_state)
     if tm_pinv is None:
         tm_pinv = np.linalg.pinv(tm)
 
     lmd = np.zeros(shape=(m, 1)) + 1j * np.zeros(shape=(m, 1))
-    eps = np.zeros(shape=(m, 1)) + 1j * np.zeros(shape=(m, 1))
+    rho = 0
     it = 0
 
     def update(x):
-        nonlocal lmd, eps, it
+        nonlocal lmd, rho, it
         tm_x = tm.dot(x)
-        z = b * np.exp(1j * np.angle(tm_x - eps + lmd))
-        x = tm_pinv.dot(z + eps - lmd)
+        z = b * np.exp(1j * np.angle(tm_x + (1 - rho) * lmd))
+        x = tm_pinv.dot(z)
         y = tm.dot(x)
         rho = strategy(it, y, z)
-        eps = (rho / (1 + rho)) * (y - z + lmd)
-        lmd = lmd + y - z - eps
+        lmd = (1 / (1 + rho)) * (lmd + y - z)
         it += 1
         return x
 
