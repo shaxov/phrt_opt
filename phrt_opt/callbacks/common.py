@@ -1,14 +1,4 @@
-import abc
 import numpy as np
-import phrt_opt.utils
-from phrt_opt import typedef
-from phrt_opt.ops import counters
-
-from phrt_opt.linesearch import Backtracking
-
-from phrt_opt.quadprog import Cholesky
-from phrt_opt.quadprog import ConjugateGradient
-
 
 
 class IsConvergedCallback:
