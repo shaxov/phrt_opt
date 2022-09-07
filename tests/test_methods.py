@@ -46,6 +46,7 @@ class TestMethods(unittest.TestCase):
             x0=x0,
             tol=1e-6,
             max_iter=100,
+            strategy=phrt_opt.strategies.auto(),
         )
         dist = phrt_opt.metrics.quality_norm(x, x_bar)
-        self.assertAlmostEqual(dist, 2.2636871992776086e-05)
+        self.assertAlmostEqual(dist, 4.161275528302699e-05)
