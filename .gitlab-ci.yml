@@ -32,7 +32,12 @@ before_script:
 
 test:
   script:
-    - python -m unittest
+#    - python -m unittest
+    - coverage run -m unittest discover
+    - coverage xml
+  artifacts:
+    reports:
+      cobertura: coverage.xml
 
 run:
   script:
