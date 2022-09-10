@@ -1,3 +1,4 @@
 numpy~=1.19.5
 setuptools~=57.4.0
 scipy~=1.5.4
+coverage~=6.2
