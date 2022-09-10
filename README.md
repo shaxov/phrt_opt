@@ -103,5 +103,31 @@ and its jacobian matrix in terms of Wirtinger calculus writes as
 Then, the descent direction $`p\in\mathbb{C}^{2n}`$ is a solution of the system
 
 ```math
-\nabla r(x)^* \nabla r(x) p = - \nabla r(x)^* r(x)
+\nabla r(x)^* \nabla r(x) p = - \nabla r(x)^* r(x).
+```
+
+To use the gradient descent method the following Python code can be used.
+
+```python
+import phrt_opt
+
+x_hat = phrt_opt.methods.gauss_newton(tm, b)
+```
+
+### Symmetric system solver
+
+There are two implemented methods that can be used for solving the Gauss-Netwon system at each iteration:
+* Cholesky solver
+```python
+x_hat = phrt_opt.methods.gauss_newton(
+    tm, b,
+    quadprog=phrt_opt.quadprog.Cholesky(),
+)
+```
+* Conjugate gradient descent solver
+```python
+x_hat = phrt_opt.methods.gauss_newton(
+    tm, b,
+    quadprog=phrt_opt.quadprog.ConjugateGradient(),
+)
 ```
