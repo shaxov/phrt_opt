@@ -36,9 +36,8 @@ test:
     - coverage run -m unittest discover
     - coverage xml
   artifacts:
-    reports:
-      paths:
-        - coverage.xml
+    paths:
+      - coverage.xml
 
 
 
