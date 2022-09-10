@@ -37,7 +37,8 @@ test:
     - coverage xml
   artifacts:
     reports:
-      coverage_report: coverage.xml
+      paths:
+        - coverage.xml
 
 
 
