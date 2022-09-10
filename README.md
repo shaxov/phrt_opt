@@ -37,8 +37,9 @@ b = np.abs(tm @ x)
 
 The library contains four phase retrieval algorithms: gradient descent, Gauss-Newton, alterating projections, and ADMM. Each of these algorithms solve the original problem using its different equivalent reformulations.
 
-### Gradient descent
-
+<details>
+<summary><h3>Gradient descent</h3></summary>
+<br>
 The equivalent reformulation of the original problem writes
 
 ```math
@@ -77,9 +78,11 @@ x_hat = phrt_opt.methods.gradient_descent(
     linesearch=phrt_opt.linesearch.Secant(),
 )
  ```
+</details>
 
-## Gauss-Newton
-
+<details>
+<summary><h3>Gauss-Newton</h3></summary>
+<br>
 The equivalent reformulation of the original problem writes
 
 ```math
@@ -106,7 +109,9 @@ Then, the descent direction $`p\in\mathbb{C}^{2n}`$ is a solution of the system
 \nabla r(x)^* \nabla r(x) p = - \nabla r(x)^* r(x).
 ```
 
-To use the gradient descent method the following Python code can be used.
+Then $`x^{(k+1)} = x^{(k)} + \alpha^{(k)} p^{(k)}_{1:n}`$, where subscript $`_{1:n}`$ means that we take the first $`n`$ elements of vector $`p`$. The step length $`\alpha^{(k)}`$ can be computed in the same way as for the gradient descent method. 
+
+To use the Gauss-Newton method the following Python code can be used.
 
 ```python
 import phrt_opt
@@ -131,3 +136,61 @@ x_hat = phrt_opt.methods.gauss_newton(
     quadprog=phrt_opt.quadprog.ConjugateGradient(),
 )
 ```
+</details>
+
+<details>
+<summary><h3>Alternating projections</h3></summary>
+<br>
+The equivalent reformulation of the original problem writes
+
+```math
+\min_{(x,y)\in\mathbb{C}^n\times\mathbb{C}^m} \frac{1}{2} \|Ax-y\|^2 \; \text{such that} \; |y| = b.
+```
+
+The algorithm contains two consecutive updates:
+```math
+\begin{align*}
+y^{(k+1)} &= b\odot\exp\big( i\arg(Ax^{(k)}) \big),\\
+x^{(k+1)} &= A^\dag y^{(k+1)},
+\end{align*}
+```
+where $`A^\dag`$ is a Moore-Penrose inverse.
+
+To use the Gauss-Newton method the following Python code can be used.
+
+```python
+import phrt_opt
+
+x_hat = phrt_opt.methods.alternating_projections(tm, b)
+```
+</details>
+
+<details>
+<summary><h3>ADMM</h3></summary>
+<br>
+The equivalent reformulation of the original problem writes
+
+```math
+\min_{(x,y)\in\mathbb{C}^n\times\mathbb{C}^m} \frac{1}{2} \|Ax-y\|^2 \; \text{such that} \; |y| = b.
+```
+
+The algorithm contains two consecutive updates:
+```math
+\begin{align*}
+y^{(k+1)} &= b\odot\exp\big( i\arg(Ax^{(k)}) \big),\\
+x^{(k+1)} &= A^\dag y^{(k+1)},
+\end{align*}
+```
+where $`A^\dag`$ is a Moore-Penrose inverse.
+
+To use the Gauss-Newton method the following Python code can be used.
+
+```python
+import phrt_opt
+
+x_hat = phrt_opt.methods.alternating_projections(tm, b)
+```
+</details>
+
+
+
