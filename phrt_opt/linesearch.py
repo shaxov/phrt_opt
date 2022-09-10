@@ -46,8 +46,10 @@ class Secant:
             IMA Journal of Numerical Analysis, Volume 8, Issue 1, January 1988, Pages 141–148,
     """
 
-    def __init__(self, linesearch, sym=False):
+    def __init__(self, linesearch=None, sym=False):
         self.linesearch = linesearch
+        if linesearch is None:
+            self.linesearch = Backtracking()
         self.sym = sym
         self.prev_x, self.prev_p = None, None
 
