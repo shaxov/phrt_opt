@@ -144,7 +144,7 @@ class TestCallbacks(unittest.TestCase):
             persist_iterations=True,
         )
         dist = phrt_opt.metrics.quality_norm(x, x_bar)
-        self.assertAlmostEqual(dist, 1.668259338449829e-07)
+        self.assertAlmostEqual(dist, 2.298161660974074e-14)
 
     def test_gradient_descent_backtracking_count_callback(self):
         import phrt_opt.utils
