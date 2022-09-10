@@ -15,7 +15,8 @@ Let $`A\in\mathbb{C}^{m\times n}`$ be a transmission matrix and $`b\in\mathbb{R}
 
 Typically, the number of measurements $`m`$ must be such that $`m \geq 4n`$ to find $`x`$. The transmission matrix $`A`$ must be a random matrix where real and imaginary parts of $`a_{ij}`$ must have a normal distribution.
 
-To generate a phase retrieval problem the following Python code can be used.
+<details>
+<summary>To generate a phase retrieval problem the following Python code can be used.</summary>
 
 ```python
 import numpy as np
@@ -32,6 +33,8 @@ x = np.random.randn(n, 1) + 1j * np.random.randn(n, 1)
 # Vector of intensity measurements
 b = np.abs(tm @ x)
 ```
+
+</details>
 
 ## Implemented algorithms
 
@@ -144,7 +147,7 @@ x_hat = phrt_opt.methods.gauss_newton(
 The equivalent reformulation of the original problem writes
 
 ```math
-\min_{(x,y)\in\mathbb{C}^n\times\mathbb{C}^m} \frac{1}{2} \|Ax-y\|^2 \; \text{such that} \; |y| = b.
+\min_{(x,y)\in\mathbb{C}^n\times\mathbb{C}^m} \frac{1}{2} \|Ax-y\|^2 \;\; \text{such that} \;\; |y| = b.
 ```
 
 The algorithm contains two consecutive updates:
@@ -171,25 +174,82 @@ x_hat = phrt_opt.methods.alternating_projections(tm, b)
 The equivalent reformulation of the original problem writes
 
 ```math
-\min_{(x,y)\in\mathbb{C}^n\times\mathbb{C}^m} \frac{1}{2} \|Ax-y\|^2 \; \text{such that} \; |y| = b.
+\min_{(y,z,\xi)\in\mathbb{C}^m\times\mathbb{C}^m\times\mathbb{C}^m} \frac{1}{2} \|\xi\|^2 \;\;
+\text{such that} \;\; y - z = \xi, \; y\in \operatorname{range}(A), \; z\in\mathcal{M}_b,
 ```
 
-The algorithm contains two consecutive updates:
+where then $`x = A^\dag y`$,  $`\mathcal{M}_b = \{ z\in\mathbb{C}^m:|z|=b \}`$.
+
+The algorithm contains three consecutive updates:
+
 ```math
 \begin{align*}
-y^{(k+1)} &= b\odot\exp\big( i\arg(Ax^{(k)}) \big),\\
-x^{(k+1)} &= A^\dag y^{(k+1)},
+z^{(k+1)} &= b\odot\exp\big( i\arg(y^{(k)} + (1 - \rho^{(k)})) \big),\\
+y^{(k+1)} &= AA^\dag z^{(k+1)},\\
+\lambda^{(k+1)} &= \frac{1}{1 + \rho^{(k+1)}}\big( \lambda^{(k)} + y^{(k+1) - z^{(k+1)} \big)
 \end{align*}
 ```
-where $`A^\dag`$ is a Moore-Penrose inverse.
 
-To use the Gauss-Newton method the following Python code can be used.
+where $`A^\dag`$ is a Moore-Penrose inverse and variable $`\xi`$ was eliminated and parameter $`\rho^{(k)}`$ is updated by one of the following strategies: `constant`, `linear`, `exponential`, and `auto`. The default strategy is set to `auto` as the best one.
 
 ```python
 import phrt_opt
 
-x_hat = phrt_opt.methods.alternating_projections(tm, b)
+x_hat = phrt_opt.methods.admm(tm, b)
 ```
+
+#### Strategies for parameter $`\rho`$
+
+A parameter $`\rho^{(k)}`$ can be updated by one of the following strategies:
+<details>
+<summary>Constant</summary>
+
+```python
+x_hat = phrt_opt.methods.admm(
+    tm, b,
+    strategy=phrt_opt.strategies.constant(.5),
+)
+```
+
+</details>
+
+<details>
+<summary>Linear</summary>
+
+```python
+x_hat = phrt_opt.methods.admm(
+    tm, b,
+    strategy=phrt_opt.strategies.linear(),
+)
+```
+
+</details>
+
+
+<details>
+<summary>Exponential</summary>
+
+```python
+x_hat = phrt_opt.methods.admm(
+    tm, b,
+    strategy=phrt_opt.strategies.exponential(),
+)
+```
+
+</details>
+
+<details>
+<summary>Auto</summary>
+
+```python
+x_hat = phrt_opt.methods.admm(
+    tm, b,
+    strategy=phrt_opt.strategies.auto(),
+)
+```
+
+</details>
+
 </details>
 
 
