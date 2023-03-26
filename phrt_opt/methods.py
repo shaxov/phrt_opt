@@ -75,7 +75,7 @@ def alternating_projections(tm, b, *,
 
 def admm(tm, b, *,
          x0: np.array = None,
-         tol: float = typedef.DEFAULT_TOL,
+         tol: float = 1e-4,
          max_iter: int = typedef.DEFAULT_MAX_ITER,
          metric: callable = typedef.DEFAULT_METRIC,
          strategy: callable = typedef.DEFAULT_STRATEGY,

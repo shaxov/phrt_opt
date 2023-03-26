@@ -51,3 +51,11 @@ def random_x0(dim, random_state=None):
         random_state = np.random.RandomState()
     x0 = random_state.randn(dim, 1) + 1j * random_state.randn(dim, 1)
     return x0
+
+
+def randn_like(arr):
+    size = np.shape(arr)
+    res = np.random.normal(size=size)
+    if np.iscomplexobj(arr):
+        res = res + 1j * np.random.normal(size=size)
+    return res

@@ -8,6 +8,7 @@ from . import strategies
 from . import linesearch
 from . import initializers
 from collections import namedtuple
+from ._contrib import retrieve_transmission_matrix, compute_camera_bias
 from .typedef import *
 
 
