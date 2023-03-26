@@ -2,7 +2,7 @@
 
 The repository contains a set of phase retrieval algorithms that are implemented in Python. To install the library run in terminal
 ```
-pip install git+https://gitlab.xlim.fr/shpakovych/phrt-opt
+pip install git+https://gitlab.com/shaxov/phrt_opt
 ```
 
 ## Problem formulation
