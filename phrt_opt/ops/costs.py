@@ -1,31 +1,31 @@
 import numpy as np
 
 TIME_CONFIG = dict(
-    add=np.float128(0.1089426) * 1e-8,
-    sub=np.float128(0.0834372) * 1e-8,
-    prod=np.float128(0.1665280) * 1e-8,
-    div=np.float128(0.3297135) * 1e-8,
-    abs=np.float128(0.2500649) * 1e-8,
-    sqrt=np.float128(0.1788236) * 1e-8,
-    sin=np.float128(1.4113816) * 1e-8,
-    cos=np.float128(1.1528648) * 1e-8,
-    tan=np.float128(2.5544987) * 1e-8,
-    atan=np.float128(2.2179606) * 1e-8,
-    exp=np.float128(1.3695341) * 1e-8,
+    add=np.float64(0.1089426) * 1e-8,
+    sub=np.float64(0.0834372) * 1e-8,
+    prod=np.float64(0.1665280) * 1e-8,
+    div=np.float64(0.3297135) * 1e-8,
+    abs=np.float64(0.2500649) * 1e-8,
+    sqrt=np.float64(0.1788236) * 1e-8,
+    sin=np.float64(1.4113816) * 1e-8,
+    cos=np.float64(1.1528648) * 1e-8,
+    tan=np.float64(2.5544987) * 1e-8,
+    atan=np.float64(2.2179606) * 1e-8,
+    exp=np.float64(1.3695341) * 1e-8,
 )
 
 UNIT_CONFIG = dict(
-    add=np.float128(1.),
-    sub=np.float128(1.),
-    prod=np.float128(1.),
-    div=np.float128(1.),
-    abs=np.float128(1.),
-    sqrt=np.float128(1.),
-    sin=np.float128(1.),
-    cos=np.float128(1.),
-    tan=np.float128(1.),
-    atan=np.float128(1.),
-    exp=np.float128(1.),
+    add=np.float64(1.),
+    sub=np.float64(1.),
+    prod=np.float64(1.),
+    div=np.float64(1.),
+    abs=np.float64(1.),
+    sqrt=np.float64(1.),
+    sin=np.float64(1.),
+    cos=np.float64(1.),
+    tan=np.float64(1.),
+    atan=np.float64(1.),
+    exp=np.float64(1.),
 )
 
 
