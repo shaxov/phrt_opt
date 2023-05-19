@@ -37,29 +37,3 @@ class MetricCallback:
     def __call__(self, x) -> float:
         return self.metric(x, self.x_opt)
 
-
-class RhoStrategyCallback:
-
-    def __init__(self, tm, tm_pinv, b, strategy):
-        m = np.shape(tm)[0]
-        self.lmd = np.zeros(shape=(m, 1)) + 1j * np.zeros(shape=(m, 1))
-        self.eps = np.zeros(shape=(m, 1)) + 1j * np.zeros(shape=(m, 1))
-        self.strategy = strategy
-
-        self.tm = tm
-        self.tm_pinv = tm_pinv
-        self.b = b
-        self.it = 0
-
-    def __call__(self, x):
-        tm_x = self.tm.dot(x)
-        z = self.b * np.exp(1j * np.angle(tm_x - self.eps + self.lmd))
-        x = self.tm_pinv.dot(z + self.eps - self.lmd)
-        y = self.tm.dot(x)
-
-        rho = self.strategy(self.it, y, z)
-
-        # self.eps = (rho / (1 + rho)) * (y - z + self.lmd)
-        # self.lmd = self.lmd + y - z - self.eps
-        self.it += 1
-        return rho

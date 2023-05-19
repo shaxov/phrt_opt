@@ -9,7 +9,7 @@ from phrt_opt.quadprog import ConjugateGradient
 from phrt_opt.eig import PowerMethod
 
 
-class _Callback(metaclass=abc.ABCMeta):
+class _Counter(metaclass=abc.ABCMeta):
 
     def __init__(self, tm, b, preliminary_step: callable = None):
         self.tm, self.b = tm, b
@@ -28,7 +28,7 @@ class _Callback(metaclass=abc.ABCMeta):
         pass
 
 
-class _LinesearchCallback(_Callback, metaclass=abc.ABCMeta):
+class _LinesearchCounter(_Counter, metaclass=abc.ABCMeta):
 
     def __init__(self, tm, b,
                  linesearch_params: dict,
@@ -43,7 +43,7 @@ class _LinesearchCallback(_Callback, metaclass=abc.ABCMeta):
         pass
 
 
-class _QuadprogCallback(_Callback, metaclass=abc.ABCMeta):
+class _QuadprogCounter(_Counter, metaclass=abc.ABCMeta):
 
     def __init__(self, tm, b,
                  quadprog_params: dict,
@@ -52,7 +52,7 @@ class _QuadprogCallback(_Callback, metaclass=abc.ABCMeta):
         self.quadprog_params = quadprog_params
 
 
-class BacktrackingCallback(_LinesearchCallback):
+class BacktrackingCounter(_LinesearchCounter):
 
     def __init__(self, tm, b,
                  linesearch_params=typedef.DEFAULT_BACKTRACKING_PARAMS,
@@ -76,10 +76,10 @@ class BacktrackingCallback(_LinesearchCallback):
                backtracking.it * counters.backtracking_step(*self.shape)
 
 
-class SecantCallback(_LinesearchCallback):
+class SecantCounter(_LinesearchCounter):
 
     def __init__(self,
-                 backtracking_callback: BacktrackingCallback,
+                 backtracking_callback: BacktrackingCounter,
                  linesearch_params=typedef.DEFAULT_LINESEARCH_PARAMS,
                  preliminary_step: callable = None):
         super().__init__(
@@ -123,7 +123,7 @@ class SecantCallback(_LinesearchCallback):
         return counters.secant_init(*self.shape) + ops_count
 
 
-class ConjugateGradientCallback(_QuadprogCallback):
+class ConjugateGradientCounter(_QuadprogCounter):
 
     def __init__(self, tm, b,
                  quadprog_params=typedef.DEFAULT_CG_PARAMS,
@@ -146,7 +146,7 @@ class ConjugateGradientCallback(_QuadprogCallback):
                conjugate_gradient.it * counters.conjugate_gradient_init(*self.shape)
 
 
-class CholeskyCallback(_QuadprogCallback):
+class CholeskyCounter(_QuadprogCounter):
 
     def __init__(self, tm, b,
                  quadprog_params=typedef.DEFAULT_CHOLESKY_PARAMS,
@@ -169,9 +169,9 @@ class CholeskyCallback(_QuadprogCallback):
                cholesky.it * counters.cholesky_step(*self.shape)
 
 
-class GradientDescentCallback:
+class GradientDescentCounter:
 
-    def __init__(self, linesearch_callback: _LinesearchCallback):
+    def __init__(self, linesearch_callback: _LinesearchCounter):
         self.linesearch_callback = linesearch_callback
 
     @staticmethod
@@ -183,11 +183,11 @@ class GradientDescentCallback:
                self.linesearch_callback(x)
 
 
-class GaussNewtonCallback:
+class GaussNewtonCounter:
 
     def __init__(self,
-                 linesearch_callback: _LinesearchCallback,
-                 quadprog_callback: _QuadprogCallback):
+                 linesearch_callback: _LinesearchCounter,
+                 quadprog_callback: _QuadprogCounter):
         self.linesearch_callback = linesearch_callback
         self.quadprog_callback = quadprog_callback
 
@@ -203,7 +203,7 @@ class GaussNewtonCallback:
         return ops_gauss_newton + ops_quadprog_count + ops_linesearch_count
 
 
-class AlternatingProjectionsCallback:
+class AlternatingProjectionsCounter:
 
     def __init__(self, shape: tuple):
         self.shape = shape
@@ -216,7 +216,7 @@ class AlternatingProjectionsCallback:
         return counters.alternating_projections(*self.shape)
 
 
-class ADMMCallback:
+class ADMMCounter:
 
     def __init__(self, shape: tuple):
         self.shape = shape
@@ -229,14 +229,14 @@ class ADMMCallback:
         return counters.admm(*self.shape)
 
 
-class EigCallback(metaclass=abc.ABCMeta):
+class _EigCounter(metaclass=abc.ABCMeta):
 
     def __init__(self, preliminary_step: callable = None):
         self.preliminary_step = preliminary_step
         self.result = None
 
 
-class PowerMethodCallback(EigCallback):
+class PowerMethodCounter(_EigCounter):
 
     def __init__(self,
                  power_method_params: dict,
@@ -258,7 +258,7 @@ class PowerMethodCallback(EigCallback):
                self.power_method.it * counters.power_method_step(n)
 
 
-class RandomInitializationCallback:
+class RandomInitializationCounter:
 
     @staticmethod
     def name():
@@ -268,9 +268,9 @@ class RandomInitializationCallback:
         return 0.
 
 
-class WirtingerInitializationCallback:
+class WirtingerInitializationCounter:
 
-    def __init__(self, eig_callback: EigCallback):
+    def __init__(self, eig_callback: _EigCounter):
         self.eig_callback = eig_callback
 
     @staticmethod
@@ -281,9 +281,9 @@ class WirtingerInitializationCallback:
         return counters.wirtinger(*np.shape(tm)) + self.eig_callback(tm, b)
 
 
-class GaoXuInitializationCallback:
+class GaoXuInitializationCounter:
 
-    def __init__(self, eig_callback: EigCallback):
+    def __init__(self, eig_callback: _EigCounter):
         self.eig_callback = eig_callback
 
     @staticmethod
@@ -296,16 +296,16 @@ class GaoXuInitializationCallback:
 
 def get(name):
     return {
-        BacktrackingCallback.name(): BacktrackingCallback,
-        SecantCallback.name(): SecantCallback,
-        ConjugateGradientCallback.name(): ConjugateGradientCallback,
-        CholeskyCallback.name(): CholeskyCallback,
-        GradientDescentCallback.name(): GradientDescentCallback,
-        GaussNewtonCallback.name(): GaussNewtonCallback,
-        AlternatingProjectionsCallback.name(): AlternatingProjectionsCallback,
-        ADMMCallback.name(): ADMMCallback,
-        PowerMethodCallback.name(): PowerMethodCallback,
-        WirtingerInitializationCallback.name(): WirtingerInitializationCallback,
-        RandomInitializationCallback.name(): RandomInitializationCallback,
-        GaoXuInitializationCallback.name(): GaoXuInitializationCallback,
+        BacktrackingCounter.name(): BacktrackingCounter,
+        SecantCounter.name(): SecantCounter,
+        ConjugateGradientCounter.name(): ConjugateGradientCounter,
+        CholeskyCounter.name(): CholeskyCounter,
+        GradientDescentCounter.name(): GradientDescentCounter,
+        GaussNewtonCounter.name(): GaussNewtonCounter,
+        AlternatingProjectionsCounter.name(): AlternatingProjectionsCounter,
+        ADMMCounter.name(): ADMMCounter,
+        PowerMethodCounter.name(): PowerMethodCounter,
+        WirtingerInitializationCounter.name(): WirtingerInitializationCounter,
+        RandomInitializationCounter.name(): RandomInitializationCounter,
+        GaoXuInitializationCounter.name(): GaoXuInitializationCounter,
     }[name]
