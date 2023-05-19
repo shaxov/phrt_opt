@@ -44,7 +44,7 @@ b = np.abs(tm @ x)
 The library contains four phase retrieval algorithms: gradient descent, Gauss-Newton, alterating projections, and ADMM. Each of these algorithms solve the original problem using its different equivalent reformulations.
 
 <details>
-<summary><h3>Gradient descent</h3></summary>
+<summary><h3>Gradient descent (Section 4.2)</h3></summary>
 <br>
 The equivalent reformulation of the original problem writes
 
@@ -87,7 +87,7 @@ x_hat = phrt_opt.methods.gradient_descent(
 </details>
 
 <details>
-<summary><h3>Gauss-Newton</h3></summary>
+<summary><h3>Gauss-Newton (Section 4.3)</h3></summary>
 <br>
 The equivalent reformulation of the original problem writes
 
@@ -145,7 +145,7 @@ x_hat = phrt_opt.methods.gauss_newton(
 </details>
 
 <details>
-<summary><h3>Alternating projections</h3></summary>
+<summary><h3>Alternating projections (Section 4.5)</h3></summary>
 <br>
 The equivalent reformulation of the original problem writes
 
@@ -172,7 +172,7 @@ x_hat = phrt_opt.methods.alternating_projections(tm, b)
 </details>
 
 <details>
-<summary><h3>ADMM</h3></summary>
+<summary><h3>ADMM (Section 4.6)</h3></summary>
 <br>
 The equivalent reformulation of the original problem writes
 
