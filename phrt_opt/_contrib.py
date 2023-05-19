@@ -88,7 +88,7 @@ def retrieve_transmission_matrix(
             
         if not num_outliers:
             break
-    return tm_k.T
+    return tm_k
 
 
 def compute_camera_bias(phases, intens, btol=1e-4, verbose=0, **kwargs):
