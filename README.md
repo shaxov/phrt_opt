@@ -45,8 +45,8 @@ The library contains four phase retrieval algorithms: gradient descent, Gauss-Ne
 
 <details>
 <summary><h3>Gradient descent</h3></summary>
-<br>
-[(Section 4.2)](https://www.theses.fr/2022LIMO0120)
+
+[Section 4.2](https://www.theses.fr/2022LIMO0120)
 
 The equivalent reformulation of the original problem writes
 
@@ -89,8 +89,10 @@ x_hat = phrt_opt.methods.gradient_descent(
 </details>
 
 <details>
-<summary><h3>Gauss-Newton (Section 4.3)</h3></summary>
-<br>
+<summary><h3>Gauss-Newton</h3></summary>
+
+[Section 4.3](https://www.theses.fr/2022LIMO0120)
+
 The equivalent reformulation of the original problem writes
 
 ```math
@@ -147,8 +149,10 @@ x_hat = phrt_opt.methods.gauss_newton(
 </details>
 
 <details>
-<summary><h3>Alternating projections (Section 4.5)</h3></summary>
-<br>
+<summary><h3>Alternating projections</h3></summary>
+
+[Section 4.5](https://www.theses.fr/2022LIMO0120)
+
 The equivalent reformulation of the original problem writes
 
 ```math
@@ -174,8 +178,10 @@ x_hat = phrt_opt.methods.alternating_projections(tm, b)
 </details>
 
 <details>
-<summary><h3>ADMM (Section 4.6)</h3></summary>
-<br>
+<summary><h3>ADMM</h3></summary>
+
+[Section 4.6](https://www.theses.fr/2022LIMO0120)
+
 The equivalent reformulation of the original problem writes
 
 ```math
