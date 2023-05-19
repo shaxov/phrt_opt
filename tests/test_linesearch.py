@@ -33,4 +33,6 @@ class TestLinesearch(unittest.TestCase):
         g = self.gradient(x0)
         alpha = linesearch(fun, x0, g)
         self.assertTrue(fun(x0 - alpha * g) < fun(x0))
+        x = x0 - alpha * g
+        alpha = linesearch(fun, x, self.gradient(x))
 
