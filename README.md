@@ -201,7 +201,7 @@ y^{(k+1)} &= AA^\dag z^{(k+1)},\\
 \end{align*}
 ```
 
-where $`A^\dag`$ is a Moore-Penrose inverse and variable $`\xi`$ was eliminated and parameter $`\rho^{(k)}`$ is updated by one of the following strategies: `constant`, `linear`, `exponential`, and `auto`. The default strategy is set to `auto` as the best one.
+where $`A^\dag`$ is a Moore-Penrose inverse and variable $`\xi`$ was eliminated and parameter $`\rho^{(k)}`$ is updated by one of the following strategies: `constant`, `linear`, `exponential`, and `auto`. The default strategy is set to `constant(1.)`.
 
 ```python
 import phrt_opt
