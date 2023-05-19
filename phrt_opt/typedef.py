@@ -7,7 +7,7 @@ from phrt_opt import metrics
 DEFAULT_METRIC = metrics.quality_norm
 
 from phrt_opt import strategies
-DEFAULT_STRATEGY = strategies.auto()
+DEFAULT_STRATEGY = strategies.constant(1.)
 
 DEFAULT_BACKTRACKING_RATE = .5
 DEFAULT_BACKTRACKING_MAX_ITER = 100
