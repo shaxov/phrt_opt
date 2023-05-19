@@ -44,8 +44,10 @@ b = np.abs(tm @ x)
 The library contains four phase retrieval algorithms: gradient descent, Gauss-Newton, alterating projections, and ADMM. Each of these algorithms solve the original problem using its different equivalent reformulations.
 
 <details>
-<summary><h3>Gradient descent (Section 4.2)</h3></summary>
+<summary><h3>Gradient descent</h3></summary>
 <br>
+[(Section 4.2)](https://www.theses.fr/2022LIMO0120)
+
 The equivalent reformulation of the original problem writes
 
 ```math
