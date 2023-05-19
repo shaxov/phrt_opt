@@ -30,30 +30,6 @@ def exponential(thresh_iter=10, rho=.5, thresh_dist=.5):
         if it < thresh_iter and projection_norm(y, z) > thresh_dist else rho
 
 
-def distance(min_norm_dist=0.):
-    """ Distance based strategy for regularization parameter rho. """
-
-    return lambda it, y, z: 1 - np.clip(projection_norm(y, z) - min_norm_dist, 0., 1.)
-
-
-def average_distance(min_norm_dist=0., avg_factor=0.5):
-    """ Distance based strategy for regularization parameter rho. """
-
-    prev_dist = None
-
-    def _strategy(it, y, z):
-        nonlocal prev_dist
-        if prev_dist is None:
-            prev_dist = 1 - np.clip(projection_norm(y, z) - min_norm_dist, 0., 1.)
-            return 0.
-        dist = 1 - np.clip(projection_norm(y, z) - min_norm_dist, 0., 1.)
-        dist = (1 - avg_factor) * dist + avg_factor * prev_dist
-        prev_dist = dist
-        return dist
-
-    return _strategy
-
-
 def auto(thresh_dist=0., thresh_rho=1.):
 
     def _strategy(it, y, z):
@@ -71,7 +47,5 @@ def get(name):
         "constant": constant,
         "linear": linear,
         "exponential": exponential,
-        "distance": distance,
-        "average_distance": average_distance,
         "auto": auto,
     }[name]

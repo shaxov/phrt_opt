@@ -61,3 +61,33 @@ class TestMethods(unittest.TestCase):
         )
         dist = phrt_opt.metrics.quality_norm(x, x_bar)
         self.assertAlmostEqual(dist, 4.161275528302699e-05)
+
+        x_bar = phrt_opt.methods.admm(
+            self.tm, self.b,
+            x0=x0,
+            tol=1e-6,
+            max_iter=100,
+            strategy=phrt_opt.strategies.constant(0.5),
+        )
+        dist = phrt_opt.metrics.quality_norm(x, x_bar)
+        self.assertAlmostEqual(dist, 2.263687199244302e-05)
+
+        x_bar = phrt_opt.methods.admm(
+            self.tm, self.b,
+            x0=x0,
+            tol=1e-6,
+            max_iter=100,
+            strategy=phrt_opt.strategies.linear(),
+        )
+        dist = phrt_opt.metrics.quality_norm(x, x_bar)
+        self.assertAlmostEqual(dist, 2.263687199244302e-05)
+
+        x_bar = phrt_opt.methods.admm(
+            self.tm, self.b,
+            x0=x0,
+            tol=1e-6,
+            max_iter=100,
+            strategy=phrt_opt.strategies.exponential(),
+        )
+        dist = phrt_opt.metrics.quality_norm(x, x_bar)
+        self.assertAlmostEqual(dist, 2.263687199244302e-05)

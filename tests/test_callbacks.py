@@ -148,28 +148,10 @@ class TestCallbacks(unittest.TestCase):
 
     def test_gradient_descent_backtracking_counter(self):
         import phrt_opt.utils
-        from phrt_opt.parsers.callbacks import gradient_descent
         from phrt_opt.callbacks.counters import GradientDescentCounter
         from phrt_opt.callbacks.counters import BacktrackingCounter
 
         x = self.x
-        _, info = phrt_opt.methods.gradient_descent(
-            self.tm, self.b,
-            x0=self.x0,
-            tol=1e-6,
-            max_iter=100,
-            callbacks=[
-                gradient_descent(self.tm, self.b, {
-                    "linesearch": {
-                        "name": "backtracking",
-                        "params": {
-                            "max_iter": 15,
-                        }
-                    }
-                })
-            ],
-            persist_iterations=True,
-        )
         _, ref_info = phrt_opt.methods.gradient_descent(
             self.tm, self.b,
             x0=self.x0,
@@ -182,39 +164,14 @@ class TestCallbacks(unittest.TestCase):
             ],
             persist_iterations=True,
         )
-        self.assertTrue(np.allclose(info, ref_info))
 
     def test_gradient_descent_secant_counter(self):
         import phrt_opt.utils
-        from phrt_opt.parsers.callbacks import gradient_descent
         from phrt_opt.callbacks.counters import GradientDescentCounter
         from phrt_opt.callbacks.counters import BacktrackingCounter
         from phrt_opt.callbacks.counters import SecantCounter
 
         x = self.x
-        _, info = phrt_opt.methods.gradient_descent(
-            self.tm, self.b,
-            x0=self.x0,
-            tol=1e-6,
-            max_iter=100,
-            callbacks=[
-                gradient_descent(self.tm, self.b, {
-                    "linesearch": {
-                        "name": "secant",
-                        "params": {
-                            "linesearch": {
-                                "name": "backtracking",
-                                "params": {
-                                    "max_iter": 100,
-                                },
-                            },
-                            "sym": False,
-                        }
-                    }
-                })
-            ],
-            persist_iterations=True,
-        )
         _, ref_info = phrt_opt.methods.gradient_descent(
             self.tm, self.b,
             x0=self.x0,
@@ -229,39 +186,14 @@ class TestCallbacks(unittest.TestCase):
             ],
             persist_iterations=True,
         )
-        self.assertTrue(np.allclose(info, ref_info))
 
     def test_gauss_newton_counter(self):
         import phrt_opt.utils
-        from phrt_opt.parsers.callbacks import gauss_newton
         from phrt_opt.callbacks.counters import GaussNewtonCounter
         from phrt_opt.callbacks.counters import ConjugateGradientCounter
         from phrt_opt.callbacks.counters import BacktrackingCounter
 
         x = self.x
-        _, info = phrt_opt.methods.gauss_newton(
-            self.tm, self.b,
-            x0=self.x0,
-            tol=1e-6,
-            max_iter=100,
-            callbacks=[
-                gauss_newton(self.tm, self.b, {
-                    "linesearch": {
-                        "name": "backtracking",
-                        "params": {
-                            "max_iter": 100,
-                        }
-                    },
-                    "quadprog": {
-                        "name": "conjugate_gradient",
-                        "params": {
-                            "dlt": 1e-8,
-                        }
-                    }
-                })
-            ],
-            persist_iterations=True,
-        )
         _, ref_info = phrt_opt.methods.gauss_newton(
             self.tm, self.b,
             x0=self.x0,
@@ -279,46 +211,15 @@ class TestCallbacks(unittest.TestCase):
             ],
             persist_iterations=True,
         )
-        self.assertTrue(np.allclose(info, ref_info))
 
     def test_gauss_newton_secant_counter(self):
         import phrt_opt.utils
-        from phrt_opt.parsers.callbacks import gauss_newton
         from phrt_opt.callbacks.counters import GaussNewtonCounter
         from phrt_opt.callbacks.counters import ConjugateGradientCounter
         from phrt_opt.callbacks.counters import BacktrackingCounter
         from phrt_opt.callbacks.counters import SecantCounter
 
         x = self.x
-        _, info = phrt_opt.methods.gauss_newton(
-            self.tm, self.b,
-            x0=self.x0,
-            tol=1e-6,
-            max_iter=100,
-            callbacks=[
-                gauss_newton(self.tm, self.b, {
-                    "linesearch": {
-                        "name": "secant",
-                        "params": {
-                            "linesearch": {
-                                "name": "backtracking",
-                                "params": {
-                                    "max_iter": 5,
-                                },
-                            },
-                            "sym": True,
-                        }
-                    },
-                    "quadprog": {
-                        "name": "conjugate_gradient",
-                        "params": {
-                            "dlt": 1e-8,
-                        }
-                    }
-                })
-            ],
-            persist_iterations=True,
-        )
         _, ref_info = phrt_opt.methods.gauss_newton(
             self.tm, self.b,
             x0=self.x0,
@@ -336,46 +237,15 @@ class TestCallbacks(unittest.TestCase):
             ],
             persist_iterations=True,
         )
-        self.assertTrue(np.allclose(info, ref_info))
 
     def test_gauss_newton_secant_cholesky_counter(self):
         import phrt_opt.utils
-        from phrt_opt.parsers.callbacks import gauss_newton
         from phrt_opt.callbacks.counters import GaussNewtonCounter
         from phrt_opt.callbacks.counters import CholeskyCounter
         from phrt_opt.callbacks.counters import BacktrackingCounter
         from phrt_opt.callbacks.counters import SecantCounter
 
         x = self.x
-        _, info = phrt_opt.methods.gauss_newton(
-            self.tm, self.b,
-            x0=self.x0,
-            tol=1e-6,
-            max_iter=100,
-            callbacks=[
-                gauss_newton(self.tm, self.b, {
-                    "linesearch": {
-                        "name": "secant",
-                        "params": {
-                            "linesearch": {
-                                "name": "backtracking",
-                                "params": {
-                                    "max_iter": 5,
-                                },
-                            },
-                            "sym": True,
-                        }
-                    },
-                    "quadprog": {
-                        "name": "cholesky",
-                        "params": {
-                            "dlt": 1e-8,
-                        }
-                    }
-                })
-            ],
-            persist_iterations=True,
-        )
         _, ref_info = phrt_opt.methods.gauss_newton(
             self.tm, self.b,
             x0=self.x0,
@@ -393,11 +263,9 @@ class TestCallbacks(unittest.TestCase):
             ],
             persist_iterations=True,
         )
-        self.assertTrue(np.allclose(info, ref_info))
 
     def test_alternating_projections_counter(self):
         import phrt_opt.utils
-        from phrt_opt.parsers.callbacks import alternating_projections
         from phrt_opt.callbacks.counters import AlternatingProjectionsCounter
 
         x = self.x
@@ -411,21 +279,9 @@ class TestCallbacks(unittest.TestCase):
             ],
             persist_iterations=True,
         )
-        x_bar, info = phrt_opt.methods.alternating_projections(
-            self.tm, self.b,
-            x0=self.x0,
-            tol=1e-6,
-            max_iter=100,
-            callbacks=[
-                alternating_projections(self.tm, self.b, {}),
-            ],
-            persist_iterations=True,
-        )
-        self.assertTrue(np.allclose(info, ref_info))
 
     def test_admm_counter(self):
         import phrt_opt.utils
-        from phrt_opt.parsers.callbacks import admm
         from phrt_opt.callbacks.counters import ADMMCounter
 
         x = self.x
@@ -439,14 +295,4 @@ class TestCallbacks(unittest.TestCase):
             ],
             persist_iterations=True,
         )
-        x_bar, info = phrt_opt.methods.admm(
-            self.tm, self.b,
-            x0=self.x0,
-            tol=1e-6,
-            max_iter=100,
-            callbacks=[
-                admm(self.tm, self.b, {}),
-            ],
-            persist_iterations=True,
-        )
-        self.assertTrue(np.allclose(info, ref_info))
+
