@@ -102,7 +102,7 @@ def compute_camera_bias(phases, intens, btol=1e-4, verbose=0, **kwargs):
     while iter_bias > btol:
         tm = retrieve_transmission_matrix(
             phases, iter_intens, phases_pinv=phases_pinv, max_attempts=2, **kwargs)
-        iter_model_intens = np.abs(phases @ tm.T)
+        iter_model_intens = np.abs(phases @ tm)
         
         mat = np.vstack([np.ones_like(iter_model_intens.ravel()), iter_model_intens.ravel()]).T
         vec = iter_intens.ravel()
