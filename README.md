@@ -1,13 +1,16 @@
-# Optimization algorithms for solving phase retrieval problem
+# Phase retrieval optimisation algorithms
 
-The repository contains a set of phase retrieval algorithms that are implemented in Python. To install the library run in terminal
+The repository contains a set of phase retrieval algorithms developed in the [thesis [Chapter 4]](https://www.theses.fr/2022LIMO0120) and implemented in Python. 
+
+## Installation
+To install the library, execute
 ```
 pip install git+https://gitlab.com/shaxov/phrt_opt
 ```
 
 ## Problem formulation
 
-Let $`A\in\mathbb{C}^{m\times n}`$ be a transmission matrix and $`b\in\mathbb{R}^{m}_+`$ be a vector of the square root of intensity measurements, $`m > n`$. Then the problem writes as
+Let $`A\in\mathbb{C}^{m\times n}`$ be a transmission matrix and $`b\in\mathbb{R}^{m}_+`$ be a vector of the square root of the intensity measurements, $`m > n`$. Then the problem is written as
 
 ```math
 \text{Find} \; x\in\mathbb{C}^n \; \text{such that} \; |Ax| = b.
