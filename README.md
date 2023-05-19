@@ -1,4 +1,4 @@
-# Phase retrieval optimisation algorithms
+# Phase retrieval optimization algorithms
 
 The repository contains a set of phase retrieval algorithms developed in the [thesis [Chapter 4]](https://www.theses.fr/2022LIMO0120) and implemented in Python. 
 
