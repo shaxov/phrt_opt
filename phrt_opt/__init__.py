@@ -1,6 +1,5 @@
 from . import ops
 from . import eig
-from . import parsers
 from . import methods
 from . import metrics
 from . import callbacks
